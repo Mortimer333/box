@@ -1,0 +1,18 @@
+nelmio_api_doc:
+    areas:
+        path_patterns: # an array of regexps (document only routes under /api, except /api/doc)
+            - ^/_(?!/doc$)
+        name_patterns: # document only routes with a name of the form api_*
+            - ^api\_
+    documentation:
+        info:
+            title: IFXpayments
+            description:
+            version: 1.0.0
+        security:
+            - Basic: []
+        components:
+            securitySchemes:
+                Basic:
+                    type: http
+                    scheme: Basic

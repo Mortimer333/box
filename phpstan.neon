@@ -1,0 +1,15 @@
+includes:
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+parameters:
+    level: 8
+    excludePaths:
+      - tests/_*/
+      - tests/Support/
+    ignoreErrors:
+      -
+        message: '#Call to an undefined method App\\Tests\\Support\\IntegrationTester::#'
+        reportUnmatched: false
+      -
+        message: '#Call to an undefined method App\\Tests\\Support\\UnitTester::#'
+        reportUnmatched: false
+      - '#\|null but database expects#'

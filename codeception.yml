@@ -1,0 +1,28 @@
+namespace: App\Tests
+bootstrap: bootstrap.php
+support_namespace: Support
+paths:
+    tests: tests
+    output: tests/_output
+    data: tests/_data
+    support: tests/Support
+    envs: tests/_envs
+actor_suffix: Tester
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
+params:
+    - .env
+    - .env.test
+    - .env.test.local
+coverage:
+    enabled: true
+    include:
+      - src/*
+    exclude:
+      - src/Kernel.php
+      - src/Application/Entity/*
+settings:
+    shuffle: false
+    colors: true
+    report_useless_tests: true

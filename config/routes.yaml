@@ -1,0 +1,17 @@
+controllers:
+    resource:
+        path: ../src/Adapter/Primary/Http
+        namespace: App\Adapter\Primary\Http
+    type: attribute
+    prefix: '/'
+app.swagger_ui:
+    path: /api/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+app.swagger:
+    path: /api/v1/doc.json
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger }
+app_user_logout:
+    path: /_/user/logout
+    methods: GET

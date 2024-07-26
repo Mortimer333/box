@@ -1,0 +1,59 @@
+services:
+    redis:
+        image: redis:alpine
+        container_name: ifxpayments-redis
+
+    db:
+        ports:
+            - "3306:3306"
+        image: mysql:5.7
+        container_name: ifxpayments-db
+        working_dir: /application
+        command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --innodb-file-format=Barracuda, --innodb-large-prefix=1, --innodb-file-per-table=1]
+        volumes:
+            - ifxpayments-db57:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=ROOT
+            - MYSQL_DATABASE=ifxpayments
+            - MYSQL_USER=ifxpayments
+            - MYSQL_PASSWORD=ifxpayments
+
+    php-fpm:
+      container_name: ifxpayments-php-fpm
+      build: ./
+      environment:
+        COMPOSER_HOME: /app
+      depends_on:
+        - db
+      volumes:
+        - .:/app
+        - ./.docker/queues.conf:/etc/supervisor/conf.d/queues.conf
+
+    rabbitmq:
+      container_name: ifxpayments-rabbitmq
+      image: 'rabbitmq:3.12.2-management'
+      ports:
+        - "5672:5672"
+        - "15672:15672"
+      volumes:
+        - rabbitmq:/var/lib/rabbitmq:cached
+      environment:
+        RABBITMQ_DEFAULT_USER: guest
+        RABBITMQ_DEFAULT_PASS: guest
+        RABBITMQ_LOGS: /var/log/rabbitmq/log/all-logs
+
+    nginx:
+      container_name: ifxpayments-nginx
+      image: nginx:stable-alpine
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - .:/app:ro
+        - ./.docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      depends_on:
+        - php-fpm
+
+volumes:
+    ifxpayments-db57:
+    rabbitmq:
