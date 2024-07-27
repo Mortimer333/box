@@ -7,9 +7,9 @@ security:
         # used to reload user from session & other features (e.g. switch_user)
         user:
             entity:
-                class: App\Application\Entity\User
+                class: App\Adapter\Secondary\Entity\User
                 property: email
-        # used to reload user from session & other features (e.g. switch_user)
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -24,6 +24,8 @@ security:
 
             logout:
                 path: app_user_logout
+            custom_authenticators:
+                - App\Adapter\Primary\Http\Security\BasicAuthAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall

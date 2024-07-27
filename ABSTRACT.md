@@ -36,3 +36,12 @@ systems, so we have Sender and Receiver (even though receiver is a machine/3rd p
 #### Optimistic lock
 I've chosen to use Optimistic Lock and retry strategy to counter race conditions. With optimistic lock we can still use
 transactions and don't have to change default behaviour of our Persistence Abstract layer (Doctrine)
+
+## Possible improvements out of scope
+#### Archive transactions
+In this system we could separate Transaction table into InProgress and Archived.
+We would do Update and Insert operations on a smaller table InProgress and search operations on Archive.
+We could even implement CQRS for that reason and have some noSQL database serve us this data, seperated per customer in 
+documents.
+#### Rabbit Sentinel
+Implement rabbit cluster in Sentinel mode for better stability.

@@ -7,17 +7,12 @@ namespace App\Domain;
 enum TransactionTypeEnum: string
 {
     /**
-     * When both accounts are in the system
+     * When both accounts are in the system.
      */
-    case internal = 'internal';
+    case Internal = 'internal';
 
     /**
-     * When accounts are in different banks
+     * When accounts are in different banks.
      */
-    case AccountToAccount = 'account-to-account';
-
-    /**
-     * When user is withdrawing in cash
-     */
-    case WithdrawByMachine = 'withdraw-by-machine';
+    case BankToBank = 'bank-to-bank';
 }

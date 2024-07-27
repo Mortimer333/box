@@ -6,25 +6,28 @@ namespace App\Domain;
 
 final class Transfer
 {
+    private bool $commissionFeeApplied = false;
+
     public function __construct(
         public readonly Sender $sender,
         public readonly Receiver $receiver,
-        public float $amount,
         public readonly string $title,
-        public readonly TransactionTypeEnum $type,
+        public readonly CurrencyEnum $currency,
+        protected float $amount,
+        public ?TransactionTypeEnum $type = null,
     ) {
-    }
-
-    // @TODO move this to Domain Service - TransferService
-    public function send(): void {
-        // Send transaction to message queue to be processed
     }
 
     public function applyCommissionFee(): void
     {
-        // @TODO catch this exception and return 500 response
+        // Make this one time action
+        if ($this->commissionFeeApplied) {
+            return;
+        }
+        $this->commissionFeeApplied = true;
+
         if (!isset($_ENV['COMMISSION_FEE'])) {
-            throw new \DomainException('Invalid configuration, missing commission fee value');
+            throw new ConfigurationException('Invalid configuration, missing commission fee value');
         }
 
         $this->amount *= $_ENV['COMMISSION_FEE'];
@@ -33,5 +36,26 @@ final class Transfer
     public function senderHasEnoughCredit(): bool
     {
         return $this->sender->bankAccountCredit >= $this->amount;
+    }
+
+    public function doCurrencyMatch(CurrencyEnum $receiverCurrency): bool
+    {
+        if ($receiverCurrency !== $this->currency) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getLimitOfDailyTransaction(): int
+    {
+        return $_ENV['MAX_DAILY_TRANSACTION_LIMIT']
+            ?? throw new ConfigurationException('Invalid configuration, missing maximum of daily transactions')
+        ;
+    }
+
+    public function getAmount(): float
+    {
+        return $this->amount;
     }
 }

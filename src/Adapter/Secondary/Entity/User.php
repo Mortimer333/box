@@ -3,7 +3,6 @@
 namespace App\Adapter\Secondary\Entity;
 
 use App\Adapter\Secondary\Repository\UserRepository;
-use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\UserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -142,7 +141,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Framewo
         return $this->bankAccounts;
     }
 
-    public function addBankAccount(BankAccountInterface $bankAccount): static
+    public function addBankAccount(BankAccount $bankAccount): static
     {
         if (!$this->bankAccounts->contains($bankAccount)) {
             $this->bankAccounts->add($bankAccount);
@@ -152,7 +151,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Framewo
         return $this;
     }
 
-    public function removeBankAccount(BankAccountInterface $bankAccount): static
+    public function removeBankAccount(BankAccount $bankAccount): static
     {
         if ($this->bankAccounts->removeElement($bankAccount)) {
             // set the owning side to null (unless already changed)

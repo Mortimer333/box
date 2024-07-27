@@ -4,8 +4,6 @@ namespace App\Adapter\Secondary\Entity;
 
 use App\Adapter\Secondary\Repository\BankAccountRepository;
 use App\Application\Port\Secondary\BankAccountInterface;
-use App\Application\Port\Secondary\TransactionInterface;
-use App\Application\Port\Secondary\UserInterface;
 use App\Domain\CurrencyEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,14 +12,14 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: BankAccountRepository::class)]
 #[ORM\UniqueConstraint(
     name: 'account_number_uniq',
-    columns: ['accountNumber']
+    columns: ['account_number']
 )]
 class BankAccount implements BankAccountInterface
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Version, ORM\Column]
+    #[ORM\Version, ORM\Column(type: 'integer')]
     private int $version;
 
     #[ORM\Column(enumType: CurrencyEnum::class)]
@@ -35,7 +33,7 @@ class BankAccount implements BankAccountInterface
     private ?User $owner = null;
 
     /**
-     * @inheritdoc
+     * @var Collection<int, Transaction>
      */
     #[ORM\OneToMany(mappedBy: 'sender', targetEntity: Transaction::class)]
     private Collection $transactions;
@@ -86,14 +84,14 @@ class BankAccount implements BankAccountInterface
         return $this->owner;
     }
 
-    public function setOwner(?UserInterface $owner): static
+    public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
 
         return $this;
     }
 
-    public function addTransaction(TransactionInterface $transaction): static
+    public function addTransaction(Transaction $transaction): static
     {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions->add($transaction);
@@ -103,7 +101,7 @@ class BankAccount implements BankAccountInterface
         return $this;
     }
 
-    public function removeTransaction(TransactionInterface $transaction): static
+    public function removeTransaction(Transaction $transaction): static
     {
         if ($this->transactions->removeElement($transaction)) {
             // set the owning side to null (unless already changed)

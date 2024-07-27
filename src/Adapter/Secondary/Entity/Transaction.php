@@ -52,6 +52,7 @@ class Transaction implements TransactionInterface
     {
         $this->created = new \DateTime();
         $this->retries = 0;
+        $this->status = TransactionStatusEnum::Processing;
     }
 
     public function getId(): ?int
@@ -78,6 +79,9 @@ class Transaction implements TransactionInterface
 
     public function setSender(?BankAccountInterface $sender): static
     {
+        if (!$sender instanceof BankAccount) {
+            throw new \InvalidArgumentException('You must set BankAccount Doctrine implementation');
+        }
         $this->sender = $sender;
 
         return $this;
@@ -124,7 +128,7 @@ class Transaction implements TransactionInterface
         return $this->address;
     }
 
-    public function setAddress(string $address): static
+    public function setAddress(?string $address): static
     {
         $this->address = $address;
 

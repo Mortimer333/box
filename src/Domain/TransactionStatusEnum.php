@@ -6,6 +6,14 @@ namespace App\Domain;
 
 enum TransactionStatusEnum: string
 {
-    case Send = 'send';
-    case Delivered = 'delivered';
+    case Processing = 'processing';
+
+    /**
+     * When awaiting response from 3rd party system.
+     */
+    case Awaiting = 'awaiting';
+
+    case Finished = 'finished';
+
+    case Failed = 'failed';
 }
