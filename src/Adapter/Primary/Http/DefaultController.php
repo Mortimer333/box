@@ -9,8 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[SWG\Tag('Health check')]
-class DefaultController extends AbstractController
+#[SWG\Tag('Default')]
+final class DefaultController extends AbstractController
 {
     #[Route('/_/health', name: 'api_health', methods: 'GET')]
     public function health(): JsonResponse
