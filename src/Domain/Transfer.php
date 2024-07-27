@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
-use App\Adapter\Secondary\Entity\Transaction;
-
-final readonly class Transfer
+final class Transfer
 {
-    public Transaction $transaction;
-
     public function __construct(
-        public Sender $sender,
-        public Receiver $receiver,
+        public readonly Sender $sender,
+        public readonly Receiver $receiver,
         public float $amount,
-        public string $title,
-        public TransactionTypeEnum $type,
+        public readonly string $title,
+        public readonly TransactionTypeEnum $type,
     ) {
     }
 
@@ -31,11 +27,11 @@ final readonly class Transfer
             throw new \DomainException('Invalid configuration, missing commission fee value');
         }
 
-        $this->transaction->setAmount($this->transaction->getAmount() * $_ENV['COMMISSION_FEE']);
+        $this->amount *= $_ENV['COMMISSION_FEE'];
     }
 
     public function senderHasEnoughCredit(): bool
     {
-        return ((int) $this->sender->bankAccount->getCredit()) >= ((int) $this->transaction->getAmount());
+        return $this->sender->bankAccountCredit >= $this->amount;
     }
 }
