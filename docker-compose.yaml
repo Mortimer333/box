@@ -23,6 +23,8 @@ services:
       build: ./
       environment:
         COMPOSER_HOME: /app
+      ports:
+        - "9001:9001"
       depends_on:
         - db
       volumes:
