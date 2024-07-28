@@ -13,5 +13,5 @@ interface RetrieveTransactionRepositoryInterface
      */
     public function get(int $id): TransactionInterface;
 
-    public function retrieveSumBetweenDateWithoutFailures(\DateTime $from, \DateTime $to): int;
+    public function retrieveSumBetweenDateWithoutFailures(\DateTime $from, \DateTime $to, int $bankAccountId): int;
 }

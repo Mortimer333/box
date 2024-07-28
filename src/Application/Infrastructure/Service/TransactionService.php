@@ -50,7 +50,7 @@ class TransactionService implements TransactionServiceInterface
             new Sender(
                 (string) $senderAccount->getAccountNumber(),
                 $senderAccount->getCredit() - $senderAccount->getReserved(),
-                $this->getSumOfTransactionsFromToday(),
+                $this->getSumOfTransactionsFromToday((int) $senderAccount->getId()),
             ),
             new Receiver(
                 $receiverAccountIdentifier,
@@ -65,13 +65,14 @@ class TransactionService implements TransactionServiceInterface
         $this->transferChainRoot->process($transaction, $senderAccount);
     }
 
-    protected function getSumOfTransactionsFromToday(): int
+    protected function getSumOfTransactionsFromToday(int $senderAccountId): int
     {
         $now = new \DateTime();
 
         return $this->retrieveTransactionRepository->retrieveSumBetweenDateWithoutFailures(
             new \DateTime($now->format('Y-m-d') . ' 00:00:00'),
             new \DateTime($now->format('Y-m-d') . ' 23:59:59'),
+            $senderAccountId,
         );
     }
 }
