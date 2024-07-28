@@ -13,7 +13,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<BankAccount>
  */
-class BankAccountRepository extends ServiceEntityRepository implements BankAccountRepositoryInterface
+final class BankAccountRepository extends ServiceEntityRepository implements BankAccountRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

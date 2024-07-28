@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Infrastructure\Exception;
 
-class BankAccountNotFoundException extends \Exception
+final class BankAccountNotFoundException extends \Exception
 {
     public function __construct(
         int $userId,

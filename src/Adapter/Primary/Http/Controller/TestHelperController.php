@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 #[SWG\Tag('Test Helper')]
 #[Route('/_/api/tester/', name: 'api_tester_')]
-class TestHelperController extends AbstractController
+final class TestHelperController extends AbstractController
 {
     public function __construct(
         protected EntityManagerInterface $em,

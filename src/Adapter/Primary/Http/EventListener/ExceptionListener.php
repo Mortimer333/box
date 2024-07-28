@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * Response transformer to make debugging easier.
  */
-class ExceptionListener implements EventSubscriberInterface
+final class ExceptionListener implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
     {

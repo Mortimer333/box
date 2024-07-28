@@ -17,7 +17,7 @@ use App\Domain\Receiver;
 use App\Domain\Sender;
 use App\Domain\Transfer;
 
-class TransactionService implements TransactionServiceInterface
+final readonly class TransactionService implements TransactionServiceInterface
 {
     public function __construct(
         protected TransactionValidatorInterface $transactionValidator,

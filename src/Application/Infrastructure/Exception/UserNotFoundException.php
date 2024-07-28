@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Infrastructure\Exception;
 
-class UserNotFoundException extends \Exception
+final class UserNotFoundException extends \Exception
 {
     public function __construct(
         int $userId,

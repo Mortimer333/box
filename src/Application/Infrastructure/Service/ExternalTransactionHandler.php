@@ -15,7 +15,7 @@ use App\Domain\TransactionStatusEnum;
 /**
  * Mock handler to stimulate some type of integration with external banking systems.
  */
-class ExternalTransactionHandler implements TransactionHandlerInterface
+final readonly class ExternalTransactionHandler implements TransactionHandlerInterface
 {
     public function __construct(
         protected RetrieveTransactionRepositoryInterface $retrieveTransactionRepository,

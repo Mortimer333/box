@@ -17,7 +17,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 #[SWG\Tag('User Transactions')]
 #[Route('transaction', name: 'api_user_transaction_')]
-class TransactionController extends AbstractController
+final class TransactionController extends AbstractController
 {
     public function __construct(
         protected Security $security,

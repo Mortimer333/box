@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-class BasicAuthAuthenticator extends AbstractAuthenticator
+final class BasicAuthAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
         protected UserPasswordHasherInterface $passwordHasher,
@@ -24,7 +24,7 @@ class BasicAuthAuthenticator extends AbstractAuthenticator
     ) {
     }
 
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
         return $request->headers->has('Authorization');
     }
@@ -66,7 +66,7 @@ class BasicAuthAuthenticator extends AbstractAuthenticator
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         $data = [
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
-class NotEnoughCreditException extends \DomainException
+final class NotEnoughCreditException extends \DomainException
 {
     public function __construct(
         float $amount,

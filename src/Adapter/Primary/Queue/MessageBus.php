@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * Very simple, almost mock implementation, just to showcase framework-agnostic approach.
  */
-class MessageBus implements AdapterMessageBusInterface
+final readonly class MessageBus implements AdapterMessageBusInterface
 {
     public function __construct(
         protected MessageBusInterface $messageBus,

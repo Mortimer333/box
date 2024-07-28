@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @extends ServiceEntityRepository<Transaction>
  */
-class TransactionRepository extends ServiceEntityRepository implements
+final class TransactionRepository extends ServiceEntityRepository implements
     RetrieveTransactionRepositoryInterface,
     StoreTransactionRepositoryInterface
 {

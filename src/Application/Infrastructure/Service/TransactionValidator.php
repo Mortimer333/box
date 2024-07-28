@@ -9,7 +9,7 @@ use App\Application\Port\Secondary\BankAccountRepositoryInterface;
 use App\Application\Port\Secondary\TransactionValidatorInterface;
 use App\Application\Port\Secondary\UserInterface;
 
-class TransactionValidator implements TransactionValidatorInterface
+final readonly class TransactionValidator implements TransactionValidatorInterface
 {
     public function __construct(
         protected BankAccountRepositoryInterface $bankAccountRepository,

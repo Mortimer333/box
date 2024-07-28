@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Infrastructure\Exception;
 
-class TransactionNotFoundException extends \Exception
+final class TransactionNotFoundException extends \Exception
 {
     public function __construct(
         int $transactionId,
