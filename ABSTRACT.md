@@ -43,5 +43,3 @@ In this system we could separate Transaction table into InProgress and Archived.
 We would do Update and Insert operations on a smaller table InProgress and search operations on Archive.
 We could even implement CQRS for that reason and have some noSQL database serve us this data, seperated per customer in 
 documents.
-#### Rabbit Sentinel
-Implement rabbit cluster in Sentinel mode for better stability.

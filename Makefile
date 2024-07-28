@@ -30,9 +30,7 @@ cs-fix:
 	php vendor/bin/php-cs-fixer fix \
 	src/ \
 	tests/Support/Helper/ \
-	tests/Support/IntegrationTester.php \
 	tests/Support/UnitTester.php \
-	tests/Integration \
 	tests/Unit \
 	migrations/ \
 	--verbose --config=.php-cs-fixer.dist.php
@@ -61,18 +59,13 @@ unit-test:
 	@echo "Runing Unit tests"
 	@docker exec -ti ifxpayments-php-fpm php vendor/bin/codecept run Unit $(args)
 
-integration-test:
-	@echo "Runing Integration tests"
-	@docker exec -ti ifxpayments-php-fpm php vendor/bin/codecept run Integration $(args)
-
 coverage-test:
 	@echo "Run all tests and get html coverage"
 	@docker exec -ti ifxpayments-php-fpm bash -c 'XDEBUG_MODE=coverage php vendor/bin/codecept run --coverage-html'
 
 test-all:
+	$(MAKE) reset-test-db
 	$(MAKE) unit-test
-	$(MAKE) integration-test
-	$(MAKE) api-test
 
 single-test:
 	@docker exec -ti ifxpayments-php-fpm bash ./dev/run_single_test.sh $(filter-out $@,$(MAKECMDGOALS))
@@ -112,3 +105,7 @@ shell-php:
 
 shell-mysql:
 	@docker exec -ti ifxpayments-db bash
+
+reset-test-db:
+	@echo "Resetting test DB"
+	@docker exec -ti ifxpayments-php-fpm bash -c 'APP_ENV=test php bin/console doctrine:fixtures:load --no-interaction --group=test  --purger=test_purger'

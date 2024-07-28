@@ -10,6 +10,8 @@ use App\Application\Port\Secondary\BankAccountRepositoryInterface;
 use App\Application\Port\Secondary\DatabaseManagerInterface;
 use App\Application\Port\Secondary\RetrieveTransactionRepositoryInterface;
 use App\Application\Port\Secondary\TransactionHandlerInterface;
+use App\Domain\ExternalTransfer;
+use App\Domain\ExternalTransferSender;
 use App\Domain\TransactionStatusEnum;
 
 /**
@@ -32,17 +34,35 @@ final readonly class ExternalTransactionHandler implements TransactionHandlerInt
         $transaction = $this->retrieveTransactionRepository->get($transactionId);
         $transaction->setStatus(TransactionStatusEnum::Awaiting);
         $this->databaseManager->persist();
+
+        /** @var BankAccountInterface $sender */
+        $sender = $this->bankAccountRepository->lockOptimistic(
+            (int) $sender->getId(),
+            $transaction->getSender()?->getVersion(),
+        );
+
+        $transfer = new ExternalTransfer(
+            new ExternalTransferSender(
+                (string) $sender->getAccountNumber(),
+                (float) $sender->getCredit(),
+            ),
+            (float) $transaction->getAmount(),
+        );
+
+        // Some long process which allows us to easily test race condition handling, and gives window for data to change
+        // in DB
         usleep(100);
 
-        // Retrieving again to put it in doctrine UoW pool/persisting after flush - library specific behaviour
-        $transaction = $this->retrieveTransactionRepository->get($transactionId);
-        /** @var BankAccountInterface $sender */
-        $sender = $transaction->getSender();
-        /** @var BankAccountInterface $senderBankAccount */
-        $senderBankAccount = $this->bankAccountRepository->lockOptimistic((int) $sender->getId());
-        $senderBankAccount->setCredit($senderBankAccount->getCredit() - $transaction->getAmount());
-        $senderBankAccount->setReserved($senderBankAccount->getReserved() - $transaction->getAmount());
+        $credit = (float) $sender->getCredit();
+        $reserved = (float) $sender->getReserved();
+
+        $transfer->finishFoundsTransfer($credit, $reserved);
+
+        $sender->setCredit($credit);
+        $sender->setReserved($reserved);
+
         $transaction->setStatus(TransactionStatusEnum::Finished);
+
         $this->databaseManager->persist();
     }
 }

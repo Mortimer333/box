@@ -10,5 +10,4 @@ modules:
             app_path: 'src'
             environment: 'test'
         - \App\Tests\Support\Helper\Unit
-        - \App\Tests\Support\Helper\SerializedData
         - \App\Tests\Support\Helper\Shared

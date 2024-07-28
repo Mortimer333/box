@@ -18,7 +18,7 @@ final class Transfer
     ) {
     }
 
-    public function getLimitOfDailyTransaction(): int
+    public function getDailyTransactionLimit(): int
     {
         return $_ENV['MAX_DAILY_TRANSACTION_LIMIT']
             ?? throw new ConfigurationException('Invalid configuration, missing maximum of daily transactions')
@@ -47,11 +47,7 @@ final class Transfer
 
     public function doesCurrencyMatch(CurrencyEnum $receiverCurrency): bool
     {
-        if ($receiverCurrency !== $this->currency) {
-            return false;
-        }
-
-        return true;
+        return $receiverCurrency === $this->currency;
     }
 
     public function getAmount(): float
@@ -61,6 +57,12 @@ final class Transfer
 
     public function hasClientReachedHisDailyLimit(): bool
     {
-        return $this->getLimitOfDailyTransaction() <= $this->sender->transactionsDoneToday;
+        return $this->getDailyTransactionLimit() <= $this->sender->transactionsDoneToday;
+    }
+
+    public function transferFounds(float &$sender, float &$receiver): void
+    {
+        $sender -= $this->amount;
+        $receiver += $this->amount;
     }
 }

@@ -21,7 +21,7 @@ final readonly class ClientDailyTransferLimitValidation implements TransactionCh
         BankAccountInterface $sender,
     ): void {
         if ($transfer->hasClientReachedHisDailyLimit()) {
-            throw new DailyLimitExceededException($transfer->getLimitOfDailyTransaction());
+            throw new DailyLimitExceededException($transfer->getDailyTransactionLimit());
         }
 
         $this->next->process($transfer, $sender);

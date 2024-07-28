@@ -48,8 +48,11 @@ final readonly class InternalTransfer implements TransactionChainLinkInterface
         $transaction = $this->storeTransactionRepository->create($transfer, $sender);
         $transaction->setStatus(TransactionStatusEnum::Finished);
 
-        $sender->setCredit($sender->getCredit() - $transfer->getAmount());
-        $receiver->setCredit($receiver->getCredit() + $transfer->getAmount());
+        $senderCredit = (float) $sender->getCredit();
+        $receiverCredit = (float) $receiver->getCredit();
+        $transfer->transferFounds($senderCredit, $receiverCredit);
+        $sender->setCredit($senderCredit);
+        $receiver->setCredit($receiverCredit);
 
         $this->databaseManager->persist();
 

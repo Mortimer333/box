@@ -128,9 +128,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Framewo
     /**
      * @param array<string> $roles
      */
-    public function setRoles(array $roles): void
+    public function setRoles(array $roles): static
     {
         $this->roles = $roles;
+
+        return $this;
     }
 
     /**

@@ -7,34 +7,18 @@ namespace App\Tests\Support\Helper;
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
 
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ManagerRegistry;
-use Dullahan\Entity\User;
+use App\Domain\CurrencyEnum;
+use App\Domain\ExternalTransfer;
+use App\Domain\ExternalTransferSender;
+use App\Domain\Receiver;
+use App\Domain\Sender;
+use App\Domain\TransactionTypeEnum;
+use App\Domain\Transfer;
+use Faker\Factory;
+use Faker\Provider\Base as FakerBase;
 
 class Shared extends \Codeception\Module
 {
-    protected Connection $connection;
-    protected EntityManagerInterface $em;
-    protected ManagerRegistry $managerRegistry;
-    /** @var array<array<string, object|string>> $entities */
-    protected array $entities = [];
-
-    public function clearToRemove(): void
-    {
-        $this->entities = [];
-    }
-
-    public function addToRemove(object $entity): void
-    {
-        $this->entities[] = $entity;
-    }
-
-    public function unshiftToRemove(object $entity): void
-    {
-        array_unshift($this->entities, $entity);
-    }
-
     /**
      * @template T
      *
@@ -49,80 +33,69 @@ class Shared extends \Codeception\Module
         return $this->getModule('Symfony')->_getContainer()->get($service);
     }
 
-    public function getConnection(): Connection
+    public function generateAccountNumber(): string
     {
-        if (isset($this->connection)) {
-            return $this->connection;
-        }
-
-        $this->connection = $this->getService(Connection::class);
-
-        return $this->connection;
+        return FakerBase::bothify(str_repeat('*', 34));
     }
 
-    public function getEm(): EntityManagerInterface
-    {
-        if (isset($this->em)) {
-            return $this->em;
-        }
+    public function generateExternalTransfer(
+        ?string $senderBankAccountNumber = null,
+        ?float $senderBankAccountCredit = null,
+        ?float $amount = null,
+    ): ExternalTransfer {
+        $senderBankAccountNumber ??= $this->generateAccountNumber();
+        $senderBankAccountCredit ??= FakerBase::numberBetween(0, 100);
+        $amount ??= FakerBase::numberBetween(0, 100);
 
-        $this->em = $this->getService(EntityManagerInterface::class);
-
-        return $this->em;
+        return new ExternalTransfer(
+            new ExternalTransferSender(
+                $senderBankAccountNumber,
+                $senderBankAccountCredit,
+            ),
+            $amount,
+        );
     }
 
-    public function getManagerRegistry(): ManagerRegistry
-    {
-        if (isset($this->managerRegistry)) {
-            return $this->managerRegistry;
-        }
+    public function generateTransfer(
+        ?int $userId = 0,
+        ?string $senderBankAccountNumber = null,
+        ?float $senderBankAccountCredit = null,
+        ?int $senderTransactionsDoneToday = null,
+        ?string $receiverBankAccountNumber = null,
+        ?string $receiverName = null,
+        ?string $receiverAddress = null,
+        ?string $title = null,
+        ?CurrencyEnum $currency = null,
+        ?float $amount = null,
+        ?TransactionTypeEnum $type = null,
+    ): Transfer {
+        $faker = Factory::create();
 
-        $this->managerRegistry = $this->getService(ManagerRegistry::class);
+        $senderBankAccountNumber ??= $this->generateAccountNumber();
+        $senderBankAccountCredit ??= FakerBase::numberBetween(0, 100);
+        $senderTransactionsDoneToday ??= FakerBase::numberBetween(0, 3);
+        $receiverBankAccountNumber ??= $this->generateAccountNumber();
+        $receiverName ??= $faker->name();
+        $title ??= $faker->title();
+        $currency ??= FakerBase::numberBetween(0, 1) ? CurrencyEnum::PLN : CurrencyEnum::USD;
+        $amount ??= FakerBase::numberBetween(0, 100);
 
-        return $this->managerRegistry;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     */
-    public function removeSavedEntities(): void
-    {
-        $em = $this->getEm();
-        if (!$em->isOpen()) {
-            $this->getManagerRegistry()->resetManager(); // Have to reset entity on exception
-            $this->connection = $em->getConnection();
-        }
-
-        $transaction = $this->getConnection()->isTransactionActive();
-        if ($transaction) {
-            $this->getConnection()->commit();
-        }
-
-        $doctrine = $this->getManagerRegistry();
-        foreach ($this->entities as $entity) {
-            if (!$em->isOpen()) {
-                $doctrine->resetManager();
-            }
-
-            if (!$entity->getId()) {
-                continue;
-            }
-
-            $entity = $em->getRepository($entity::class)->find($entity->getId()); // @phpstan-ignore-line
-            if (!$entity) {
-                continue;
-            }
-
-            $em->remove($entity);
-            if ($entity instanceof User && $entity->getData()) {
-                $em->remove($entity->getData());
-            }
-        }
-        $em->flush();
-
-        if ($transaction) {
-            $this->getConnection()->beginTransaction();
-        }
+        return new Transfer(
+            new Sender(
+                $userId,
+                $senderBankAccountNumber,
+                $senderBankAccountCredit,
+                $senderTransactionsDoneToday,
+            ),
+            new Receiver(
+                $receiverBankAccountNumber,
+                $receiverName,
+                $receiverAddress,
+            ),
+            $title,
+            $currency,
+            $amount,
+            $type,
+        );
     }
 }

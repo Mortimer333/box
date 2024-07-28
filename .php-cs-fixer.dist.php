@@ -14,6 +14,7 @@ return (new PhpCsFixer\Config())
         'single_line_after_imports' => true,
         'class_definition' => false,
         'single_line_throw' => false,
+        'types_spaces' => false,
     ])
     ->setFinder($finder)
 ;

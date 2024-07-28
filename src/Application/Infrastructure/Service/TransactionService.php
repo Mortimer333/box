@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Application\Infrastructure\Service;
 
-use App\Application\Infrastructure\Exception\AuthenticationException;
 use App\Application\Port\Primary\TransactionServiceInterface;
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\BankAccountRepositoryInterface;
+use App\Application\Port\Secondary\DatabaseManagerInterface;
 use App\Application\Port\Secondary\RetrieveTransactionRepositoryInterface;
 use App\Application\Port\Secondary\TransactionChainLinkInterface;
-use App\Application\Port\Secondary\TransactionValidatorInterface;
-use App\Application\Port\Secondary\UserInterface;
+use App\Domain\ConfigurationException;
 use App\Domain\CurrencyEnum;
 use App\Domain\Receiver;
 use App\Domain\Sender;
@@ -20,15 +19,15 @@ use App\Domain\Transfer;
 final readonly class TransactionService implements TransactionServiceInterface
 {
     public function __construct(
-        protected TransactionValidatorInterface $transactionValidator,
         protected BankAccountRepositoryInterface $bankAccountRepository,
         protected TransactionChainLinkInterface $transferChainRoot,
         protected RetrieveTransactionRepositoryInterface $retrieveTransactionRepository,
+        protected DatabaseManagerInterface $databaseManager,
     ) {
     }
 
     public function process(
-        UserInterface $user,
+        int $userId,
         int $senderAccountId,
         string $receiverAccountIdentifier,
         string $title,
@@ -36,33 +35,49 @@ final readonly class TransactionService implements TransactionServiceInterface
         float $amount,
         ?string $address = null,
     ): void {
-        if ($this->transactionValidator->ownsSelectedBankAccount($user, $senderAccountId)) {
-            throw new AuthenticationException('Cannot move credit from not owned bank account');
+        $maxTry = $_ENV['MAX_PROCESS_RETRY_COUNT']
+            ?? throw new ConfigurationException('Maximal retry count for transfer is not configured')
+        ;
+        for ($currentTry = 0; $currentTry < $maxTry; ++$currentTry) {
+            try {
+                if (!$this->databaseManager->hasActiveTransaction()) {
+                    $this->databaseManager->beginTransaction();
+                }
+
+                /** @var BankAccountInterface $senderAccount */
+                $senderAccount = $this->bankAccountRepository->lockOptimistic($senderAccountId);
+
+                /** @var CurrencyEnum $currency */
+                $currency = $senderAccount->getCurrency();
+
+                $transaction = new Transfer(
+                    new Sender(
+                        $userId,
+                        (string) $senderAccount->getAccountNumber(),
+                        $senderAccount->getCredit() - $senderAccount->getReserved(),
+                        $this->getSumOfTransactionsFromToday((int) $senderAccount->getId()),
+                    ),
+                    new Receiver(
+                        $receiverAccountIdentifier,
+                        $receiverName,
+                        $address,
+                    ),
+                    $title,
+                    $currency,
+                    $amount,
+                );
+
+                $this->transferChainRoot->process($transaction, $senderAccount);
+            } catch (\Throwable $e) {
+                $this->databaseManager->rollback();
+
+                if ($maxTry <= $currentTry + 1) {
+                    throw $e;
+                }
+
+                $this->databaseManager->reconnectIfNecessary();
+            }
         }
-
-        /** @var BankAccountInterface $senderAccount */
-        $senderAccount = $this->bankAccountRepository->lockOptimistic($senderAccountId);
-
-        /** @var CurrencyEnum $currency */
-        $currency = $senderAccount->getCurrency();
-
-        $transaction = new Transfer(
-            new Sender(
-                (string) $senderAccount->getAccountNumber(),
-                $senderAccount->getCredit() - $senderAccount->getReserved(),
-                $this->getSumOfTransactionsFromToday((int) $senderAccount->getId()),
-            ),
-            new Receiver(
-                $receiverAccountIdentifier,
-                $receiverName,
-                $address,
-            ),
-            $title,
-            $currency,
-            $amount,
-        );
-
-        $this->transferChainRoot->process($transaction, $senderAccount);
     }
 
     protected function getSumOfTransactionsFromToday(int $senderAccountId): int

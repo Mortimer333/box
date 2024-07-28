@@ -34,7 +34,7 @@ final class TransactionController extends AbstractController
         }
 
         $this->transactionService->process(
-            $user,
+            (int) $user->getId(),
             (int) $createTransactionModel->senderAccountId,
             (string) $createTransactionModel->receiverAccountNumber,
             (string) $createTransactionModel->title,
