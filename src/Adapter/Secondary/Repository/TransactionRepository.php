@@ -12,17 +12,22 @@ use App\Domain\TransactionStatusEnum;
 use App\Domain\Transfer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @extends ServiceEntityRepository<Transaction>
  */
-class RetrieveTransactionRepository extends ServiceEntityRepository implements
+class TransactionRepository extends ServiceEntityRepository implements
     RetrieveTransactionRepositoryInterface,
     StoreTransactionRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public const TRANSACTION_CACHE_SUM_KEY = 'transaction_sum';
+
+    public function __construct(
+        ManagerRegistry $registry,
+        protected CacheItemPoolInterface $cacheItemPool,
+    ) {
         parent::__construct($registry, Transaction::class);
     }
 
@@ -33,6 +38,8 @@ class RetrieveTransactionRepository extends ServiceEntityRepository implements
 
     public function create(Transfer $transfer, BankAccountInterface $sender): TransactionInterface
     {
+        $this->cacheItemPool->deleteItem(self::TRANSACTION_CACHE_SUM_KEY);
+
         $transaction = (new Transaction())
             ->setType(
                 $transfer->type
@@ -54,7 +61,11 @@ class RetrieveTransactionRepository extends ServiceEntityRepository implements
 
     public function retrieveSumBetweenDateWithoutFailures(\DateTime $from, \DateTime $to): int
     {
-        // @TODO Cache the result
+        $item = $this->cacheItemPool->getItem(self::TRANSACTION_CACHE_SUM_KEY);
+        if ($item->isHit()) {
+            return (int) $item->get();
+        }
+
         $qb = $this->createQueryBuilder('t');
         $qb
             ->select('SUM(t.id) as sum')
@@ -65,6 +76,11 @@ class RetrieveTransactionRepository extends ServiceEntityRepository implements
             ->setParameter('statuses', [TransactionStatusEnum::Failed])
         ;
 
-        return $qb->getQuery()->getOneOrNullResult();
+        $sum = (int) $qb->getQuery()->getOneOrNullResult();
+
+        $item->set($sum);
+        $this->cacheItemPool->save($item);
+
+        return $sum;
     }
 }
