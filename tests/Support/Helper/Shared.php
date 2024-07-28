@@ -41,18 +41,26 @@ class Shared extends \Codeception\Module
     public function generateExternalTransfer(
         ?string $senderBankAccountNumber = null,
         ?float $senderBankAccountCredit = null,
+        ?float $senderBankAccountReserved = null,
         ?float $amount = null,
+        ?float $commissionFee = null,
     ): ExternalTransfer {
         $senderBankAccountNumber ??= $this->generateAccountNumber();
         $senderBankAccountCredit ??= FakerBase::numberBetween(0, 100);
         $amount ??= FakerBase::numberBetween(0, 100);
+        $senderBankAccountReserved ??= FakerBase::numberBetween(0, 100);
+        if ($senderBankAccountReserved > $senderBankAccountCredit) {
+            $senderBankAccountReserved = $senderBankAccountCredit;
+        }
 
         return new ExternalTransfer(
             new ExternalTransferSender(
                 $senderBankAccountNumber,
                 $senderBankAccountCredit,
+                $senderBankAccountReserved,
             ),
             $amount,
+            $commissionFee,
         );
     }
 
@@ -60,6 +68,7 @@ class Shared extends \Codeception\Module
         ?int $userId = 0,
         ?string $senderBankAccountNumber = null,
         ?float $senderBankAccountCredit = null,
+        ?float $senderBankAccountReserved = null,
         ?int $senderTransactionsDoneToday = null,
         ?string $receiverBankAccountNumber = null,
         ?string $receiverName = null,
@@ -73,6 +82,10 @@ class Shared extends \Codeception\Module
 
         $senderBankAccountNumber ??= $this->generateAccountNumber();
         $senderBankAccountCredit ??= FakerBase::numberBetween(0, 100);
+        $senderBankAccountReserved ??= FakerBase::numberBetween(0, 100);
+        if ($senderBankAccountReserved > $senderBankAccountCredit) {
+            $senderBankAccountReserved = $senderBankAccountCredit;
+        }
         $senderTransactionsDoneToday ??= FakerBase::numberBetween(0, 3);
         $receiverBankAccountNumber ??= $this->generateAccountNumber();
         $receiverName ??= $faker->name();
@@ -85,6 +98,7 @@ class Shared extends \Codeception\Module
                 $userId,
                 $senderBankAccountNumber,
                 $senderBankAccountCredit,
+                $senderBankAccountReserved,
                 $senderTransactionsDoneToday,
             ),
             new Receiver(

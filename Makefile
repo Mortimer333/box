@@ -92,7 +92,7 @@ tests-build:
 	php vendor/bin/codecept build
 
 entity:
-	@docker exec -ti ifxpayments-php-fpm php bin/console make:entity \\App\\Domain\\Entity\\$(filter-out $@,$(MAKECMDGOALS))
+	@docker exec -ti ifxpayments-php-fpm php bin/console make:entity \\App\\Adapter\\Secondary\\Entity\\$(filter-out $@,$(MAKECMDGOALS))
 
 stop:
 	@docker stop $(shell docker ps -aq)

@@ -9,6 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[SWG\Tag('Default')]
 final class DefaultController extends AbstractController
 {

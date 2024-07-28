@@ -1,9 +1,11 @@
 #!/bin/bash
 
 test_file_name="$1"
-test_dir_path="Tests"
+test_dir_path="tests"
 specific_test="$2"
 is_shared=""
+
+export APP_ENV="test"
 
 test_file_path=$(find $test_dir_path -name "${test_file_name}.php" -print -quit)
 

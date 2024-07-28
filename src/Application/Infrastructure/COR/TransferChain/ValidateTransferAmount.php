@@ -6,13 +6,13 @@ namespace App\Application\Infrastructure\COR\TransferChain;
 
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\TransactionChainLinkInterface;
+use App\Domain\NotEnoughCreditException;
 use App\Domain\Transfer;
-use Psr\Log\LoggerInterface;
 
-final readonly class FinishChain implements TransactionChainLinkInterface
+final readonly class ValidateTransferAmount implements TransactionChainLinkInterface
 {
     public function __construct(
-        private LoggerInterface $logger,
+        private TransactionChainLinkInterface $next,
     ) {
     }
 
@@ -21,14 +21,12 @@ final readonly class FinishChain implements TransactionChainLinkInterface
         BankAccountInterface $sender,
     ): void {
         $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'finish' . PHP_EOL);
+        fwrite($file, 'Raise ' . $transfer->amount . PHP_EOL);
         fclose($file);
-        $this->logger->info(
-            sprintf(
-                'Transfer proces from %s to %s finished successfully',
-                $transfer->sender->bankAccountNumber,
-                $transfer->receiver->bankAccountNumber
-            ),
-        );
+        if (!$transfer->senderHasEnoughCredit()) {
+            throw new NotEnoughCreditException($transfer->amount, $transfer->currency);
+        }
+
+        $this->next->process($transfer, $sender);
     }
 }

@@ -6,6 +6,9 @@ namespace App\Adapter\Primary\Http\DTO\TestHelper;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @codeCoverageIgnore
+ */
 final readonly class CreateTestUserDTO
 {
     public function __construct(

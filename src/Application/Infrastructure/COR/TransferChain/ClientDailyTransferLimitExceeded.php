@@ -9,7 +9,7 @@ use App\Application\Port\Secondary\TransactionChainLinkInterface;
 use App\Domain\DailyLimitExceededException;
 use App\Domain\Transfer;
 
-final readonly class ClientDailyTransferLimitValidation implements TransactionChainLinkInterface
+final readonly class ClientDailyTransferLimitExceeded implements TransactionChainLinkInterface
 {
     public function __construct(
         private TransactionChainLinkInterface $next,
@@ -20,6 +20,9 @@ final readonly class ClientDailyTransferLimitValidation implements TransactionCh
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
+        $file = fopen('/app/var/test', 'a');
+        fwrite($file, 'daily' . PHP_EOL);
+        fclose($file);
         if ($transfer->hasClientReachedHisDailyLimit()) {
             throw new DailyLimitExceededException($transfer->getDailyTransactionLimit());
         }

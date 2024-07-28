@@ -7,9 +7,9 @@ namespace App\Application\Infrastructure\Message;
 /**
  * @codeCoverageIgnore
  */
-final readonly class ProcessTransactionMessage
+final readonly class TransferCommissionFeeFoundsMessage
 {
-    public function __construct(public int $transactionId)
+    public function __construct(public float $amount)
     {
     }
 }

@@ -7,6 +7,9 @@ namespace App\Adapter\Secondary\DataFixtures;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class TestFixturesAbstract extends Fixture implements FixtureGroupInterface
 {
     public static function getGroups(): array

@@ -54,7 +54,8 @@ final readonly class TransactionService implements TransactionServiceInterface
                     new Sender(
                         $userId,
                         (string) $senderAccount->getAccountNumber(),
-                        $senderAccount->getCredit() - $senderAccount->getReserved(),
+                        (float) $senderAccount->getCredit(),
+                        (float) $senderAccount->getReserved(),
                         $this->getSumOfTransactionsFromToday((int) $senderAccount->getId()),
                     ),
                     new Receiver(

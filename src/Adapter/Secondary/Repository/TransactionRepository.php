@@ -8,12 +8,12 @@ use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\RetrieveTransactionRepositoryInterface;
 use App\Application\Port\Secondary\StoreTransactionRepositoryInterface;
 use App\Application\Port\Secondary\TransactionInterface;
+use App\Domain\CurrencyEnum;
 use App\Domain\TransactionStatusEnum;
-use App\Domain\Transfer;
+use App\Domain\TransactionTypeEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @extends ServiceEntityRepository<Transaction>
@@ -36,22 +36,27 @@ final class TransactionRepository extends ServiceEntityRepository implements
         return $this->find($id) ?? throw new TransactionNotFoundException($id);
     }
 
-    public function create(Transfer $transfer, BankAccountInterface $sender): TransactionInterface
-    {
+    public function create(
+        BankAccountInterface $sender,
+        TransactionTypeEnum $type,
+        CurrencyEnum $currency,
+        float $amount,
+        float $commissionFee,
+        string $title,
+        string $receiver,
+        string $receiverAccountNumber,
+        ?string $address = null,
+    ): TransactionInterface {
         $this->cacheItemPool->deleteItem(self::TRANSACTION_CACHE_SUM_KEY_PREFIX . ((int) $sender->getId()));
 
         $transaction = (new Transaction())
-            ->setType(
-                $transfer->type
-                    ?? throw new \InvalidArgumentException(
-                        'Transaction type not determinated',
-                        Response::HTTP_INTERNAL_SERVER_ERROR,
-                    )
-            )->setAmount($transfer->getAmount())
-            ->setAddress($transfer->receiver->address)
-            ->setTitle($transfer->title)
-            ->setReceiver($transfer->receiver->name)
-            ->setReceiverAccountNumber($transfer->receiver->bankAccountNumber)
+            ->setType($type)
+            ->setCurrency($currency)
+            ->setAmount($amount)
+            ->setAddress($address)
+            ->setTitle($title)
+            ->setReceiver($receiver)
+            ->setReceiverAccountNumber($receiverAccountNumber)
             ->setSender($sender)
         ;
         $this->getEntityManager()->persist($transaction);

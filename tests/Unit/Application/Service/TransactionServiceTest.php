@@ -10,6 +10,7 @@ use App\Application\Port\Secondary\BankAccountRepositoryInterface;
 use App\Application\Port\Secondary\DatabaseManagerInterface;
 use App\Application\Port\Secondary\RetrieveTransactionRepositoryInterface;
 use App\Application\Port\Secondary\TransactionChainLinkInterface;
+use App\Domain\ConfigurationException;
 use App\Domain\CurrencyEnum;
 use App\Domain\Transfer;
 use App\Tests\Unit\BaseUnitAbstract;
@@ -23,6 +24,20 @@ use Faker\Provider\Base as FakerBase;
  */
 class TransactionServiceTest extends BaseUnitAbstract
 {
+    public function testExceptionIsThrownOnMissingConfig(): void
+    {
+        $transactionService = new TransactionService(
+            $this->makeEmpty(BankAccountRepositoryInterface::class),
+            $this->makeEmpty(TransactionChainLinkInterface::class),
+            $this->makeEmpty(RetrieveTransactionRepositoryInterface::class),
+            $this->makeEmpty(DatabaseManagerInterface::class),
+        );
+
+        $_ENV['MAX_PROCESS_RETRY_COUNT'] = null;
+        $this->expectException(ConfigurationException::class);
+        $transactionService->process(0,0,'','','',0.0);
+    }
+
     public function testTransactionRetryStrategy(): void
     {
         $generator = Factory::create();
@@ -36,16 +51,16 @@ class TransactionServiceTest extends BaseUnitAbstract
 
         $bankAccountRepositoryMock = $this->makeEmpty(BankAccountRepositoryInterface::class, [
             'lockOptimistic' => $this->makeEmpty(BankAccountInterface::class, [
-                'getAccountNumber' => $receiverAccountIdentifier,
-                'getCredit' => 50.0,
-                'getReserved' => 0.0,
-                'getId' => 1,
-                'getCurrency' => CurrencyEnum::USD,
+                'getAccountNumber' => Expected::exactly(3, $receiverAccountIdentifier),
+                'getCredit' => Expected::exactly(3, 50.0),
+                'getReserved' => Expected::exactly(3, 0.0),
+                'getId' => Expected::exactly(3, 1),
+                'getCurrency' => Expected::exactly(3, CurrencyEnum::USD),
             ]),
         ]);
 
         $transactionChainRoot = $this->makeEmpty(TransactionChainLinkInterface::class, [
-            'process' => function (Transfer $transaction, BankAccountInterface $bankAccount) use (
+            'process' => Expected::exactly(3, function (Transfer $transaction, BankAccountInterface $bankAccount) use (
                 $userId,
                 $receiverAccountIdentifier,
                 $title,
@@ -59,33 +74,28 @@ class TransactionServiceTest extends BaseUnitAbstract
                 $this->tester->assertEquals($receiverName, $transaction->receiver->name);
                 $this->tester->assertEquals($address, $transaction->receiver->address);
                 $this->tester->assertEquals($title, $transaction->title);
-                $this->tester->assertEquals($amount, $transaction->getAmount());
+                $this->tester->assertEquals($amount, $transaction->amount);
 
                 throw new OptimisticLockException('Optimistic lock exception', 'TestEntity');
-            },
+            }),
         ]);
 
         $retrieveTransactionRepository = $this->makeEmpty(RetrieveTransactionRepositoryInterface::class, [
-            'retrieveSumBetweenDateWithoutFailures' => 0,
+            'retrieveSumBetweenDateWithoutFailures' => Expected::exactly(3, 0),
         ]);
 
         $databaseManager = $this->tester->getService(DatabaseManagerInterface::class);
         $databaseManagerProxyMock = $this->makeEmpty(DatabaseManagerInterface::class, [
-            'hasActiveTransaction' => Expected::exactly(3, function () use ($databaseManager): bool
-            {
+            'hasActiveTransaction' => Expected::exactly(3, function () use ($databaseManager): bool {
                 return $databaseManager->hasActiveTransaction();
             }),
-            'beginTransaction' => Expected::exactly(3, function () use ($databaseManager): void
-            {
+            'beginTransaction' => Expected::exactly(3, function () use ($databaseManager): void {
                 $databaseManager->beginTransaction();
-
             }),
-            'rollback' => Expected::exactly(3, function () use ($databaseManager): void
-            {
+            'rollback' => Expected::exactly(3, function () use ($databaseManager): void {
                 $databaseManager->rollback();
             }),
-            'reconnectIfNecessary' => Expected::exactly(2, function () use ($databaseManager): void
-            {
+            'reconnectIfNecessary' => Expected::exactly(2, function () use ($databaseManager): void {
                 $databaseManager->reconnectIfNecessary();
             }),
         ]);

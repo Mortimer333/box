@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Purger;
+namespace App\Adapter\Secondary\Purger;
 
 use Doctrine\Bundle\FixturesBundle\Purger\PurgerFactory;
 use Doctrine\Common\DataFixtures\Purger\PurgerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TestPurgerFactory implements PurgerFactory
 {
     /**

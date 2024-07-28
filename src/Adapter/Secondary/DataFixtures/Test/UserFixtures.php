@@ -9,6 +9,9 @@ use App\Adapter\Secondary\Entity\User;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class UserFixtures extends TestFixturesAbstract
 {
     public const NORMAL_USER = 'normal_user';

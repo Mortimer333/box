@@ -8,7 +8,8 @@ final readonly class ExternalTransferSender
 {
     public function __construct(
         public string $bankAccountNumber,
-        public float $bankAccountCredit,
+        public float $credit,
+        public float $reserved,
     ) {
     }
 }

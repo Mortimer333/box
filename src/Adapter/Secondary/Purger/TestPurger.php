@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Purger;
+namespace App\Adapter\Secondary\Purger;
 
 use Doctrine\DBAL\Connection;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TestPurger extends AbstractPurger
 {
     public function purge(): void

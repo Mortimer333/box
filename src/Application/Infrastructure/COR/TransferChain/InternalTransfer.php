@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Application\Infrastructure\COR\TransferChain;
 
 use App\Application\Infrastructure\Exception\InvalidLinkCallException;
+use App\Application\Infrastructure\Message\TransferCommissionFeeFoundsMessage;
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\BankAccountRepositoryInterface;
 use App\Application\Port\Secondary\DatabaseManagerInterface;
+use App\Application\Port\Secondary\MessageBusInterface;
 use App\Application\Port\Secondary\StoreTransactionRepositoryInterface;
 use App\Application\Port\Secondary\TransactionChainLinkInterface;
 use App\Domain\CurrencyEnum;
@@ -23,6 +25,7 @@ final readonly class InternalTransfer implements TransactionChainLinkInterface
         private StoreTransactionRepositoryInterface $storeTransactionRepository,
         private DatabaseManagerInterface $databaseManager,
         private BankAccountRepositoryInterface $bankAccountRepository,
+        private MessageBusInterface $messageBus,
     ) {
     }
 
@@ -38,23 +41,36 @@ final readonly class InternalTransfer implements TransactionChainLinkInterface
         /** @var BankAccountInterface $receiver */
         $receiver = $this->bankAccountRepository->lockOptimistic((int) $receiver->getId());
 
+        /* @TODO maybe move to it's own link? But what are other uses then internal transfer? */
         /** @var CurrencyEnum $currency */
         $currency = $receiver->getCurrency();
         if (!$transfer->doesCurrencyMatch($currency)) {
             throw new CurrencyMismatchException($transfer->currency, $currency);
         }
 
-        $transfer->type = TransactionTypeEnum::Internal;
-        $transaction = $this->storeTransactionRepository->create($transfer, $sender);
+        $transaction = $this->storeTransactionRepository->create(
+            $sender,
+            TransactionTypeEnum::Internal,
+            $transfer->currency,
+            $transfer->amount,
+            $transfer->getCommissionFeeAmount(),
+            $transfer->title,
+            $transfer->receiver->name,
+            $transfer->receiver->bankAccountNumber,
+            $transfer->receiver->address,
+        );
         $transaction->setStatus(TransactionStatusEnum::Finished);
 
         $senderCredit = (float) $sender->getCredit();
         $receiverCredit = (float) $receiver->getCredit();
-        $transfer->transferFounds($senderCredit, $receiverCredit);
+        $commissionCredit = 0;
+        $transfer->transferFounds($senderCredit, $receiverCredit, $commissionCredit);
         $sender->setCredit($senderCredit);
         $receiver->setCredit($receiverCredit);
 
+        // It's very important to not change order of execution - first persist change, then message about new founds
         $this->databaseManager->persist();
+        $this->messageBus->dispatch(new TransferCommissionFeeFoundsMessage($commissionCredit));
 
         $this->next->process($transfer, $sender);
     }

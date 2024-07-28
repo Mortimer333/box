@@ -6,6 +6,9 @@ namespace App\Adapter\Primary\Http\DTO\User;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @codeCoverageIgnore
+ */
 final readonly class CreateTransactionDTO
 {
     public function __construct(

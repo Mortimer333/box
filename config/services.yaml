@@ -9,7 +9,7 @@ services:
             - '../src/Adapter/Secondary/Entity/'
             - '../src/Kernel.php'
 
-    App\Purger\TestPurgerFactory:
+    App\Adapter\Secondary\Purger\TestPurgerFactory:
         tags:
             - { name: 'doctrine.fixtures.purger_factory', alias: 'test_purger' }
 
@@ -22,22 +22,26 @@ services:
         arguments:
             $next: '@App\Application\Infrastructure\COR\TransferChain\FinishChain'
 
+    App\Application\Infrastructure\COR\TransferChain\ValidateTransferAmount:
+        arguments:
+            $next: '@App\Application\Infrastructure\COR\TransferChain\InternalTransfer'
+
+    App\Application\Infrastructure\COR\TransferChain\ValidateExternalTransferAmount:
+        arguments:
+            $next: '@App\Application\Infrastructure\COR\TransferChain\BankToBankTransaction'
+
     App\Application\Infrastructure\COR\TransferChain\DeterminateTransferType:
         arguments:
-            $internalTransfer: '@App\Application\Infrastructure\COR\TransferChain\InternalTransfer'
-            $bankToBankTransaction: '@App\Application\Infrastructure\COR\TransferChain\BankToBankTransaction'
+            $internalTransfer: '@App\Application\Infrastructure\COR\TransferChain\ValidateTransferAmount'
+            $bankToBankTransaction: '@App\Application\Infrastructure\COR\TransferChain\ValidateExternalTransferAmount'
 
-    App\Application\Infrastructure\COR\TransferChain\RaiseAndValidateTransferAmount:
+    App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitExceeded:
         arguments:
             $next: '@App\Application\Infrastructure\COR\TransferChain\DeterminateTransferType'
 
-    App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitValidation:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\RaiseAndValidateTransferAmount'
-
     App\Application\Infrastructure\COR\TransferChain\ClientOwnsSenderBankAccount:
         arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitValidation'
+            $next: '@App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitExceeded'
 
     App\Application\Infrastructure\COR\TransferChain\TransferChainRootLink:
         arguments:
@@ -46,3 +50,17 @@ services:
     App\Application\Port\Secondary\TransactionChainLinkInterface:
         alias: App\Application\Infrastructure\COR\TransferChain\TransferChainRootLink
     ###< Transaction Chain Configuration ###
+
+when@test:
+    services:
+        App\Tests\Support\Override\DatabaseManager:
+            decorates: App\Adapter\Secondary\DatabaseManager
+            arguments: ['@.inner']
+
+        App\Tests\Support\Override\BankAccountRepository:
+            decorates: App\Adapter\Secondary\Repository\BankAccountRepository
+            arguments: ['@.inner']
+
+        App\Tests\Support\Override\MessageBus:
+            decorates: App\Adapter\Secondary\MessageQueue\MessageBus
+            arguments: ['@.inner']

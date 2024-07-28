@@ -7,7 +7,7 @@ framework:
                 format: json
         transports:
             process_transaction:
-                dsn: "%env(RABBITMQ_DSN)%"
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
                 retry_strategy:
                     max_retries: 2
                 options:
@@ -22,3 +22,4 @@ framework:
                         exchange_name: 'x.delays-internal'
         routing:
             App\Application\Infrastructure\Message\ProcessTransactionMessage: process_transaction
+            App\Application\Infrastructure\Message\TransferCommissionFeeFoundsMessage: process_transaction

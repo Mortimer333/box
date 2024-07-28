@@ -47,7 +47,7 @@ interface TransactionInterface
 
     public function setStatus(TransactionStatusEnum $status): static;
 
-    public function getRetries(): int;
+    public function getCommissionFee(): ?float;
 
-    public function setRetries(int $retries): static;
+    public function setCommissionFee(float $commissionFee): static;
 }

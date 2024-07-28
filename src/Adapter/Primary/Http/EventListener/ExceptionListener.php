@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
+ * @codeCoverageIgnore Helper class, probably wouldn't make it to production but helps a lot for testing
  * Response transformer to make debugging easier.
  */
 final class ExceptionListener implements EventSubscriberInterface

@@ -5,11 +5,15 @@ namespace App\Adapter\Secondary\Entity;
 use App\Adapter\Secondary\Repository\TransactionRepository;
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\TransactionInterface;
+use App\Domain\CurrencyEnum;
 use App\Domain\TransactionStatusEnum;
 use App\Domain\TransactionTypeEnum;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction implements TransactionInterface
 {
@@ -44,14 +48,15 @@ class Transaction implements TransactionInterface
     #[ORM\Column(enumType: TransactionStatusEnum::class)]
     private ?TransactionStatusEnum $status = null;
 
-    /** @var int Amount of times that transaction was retried without success */
     #[ORM\Column]
-    private int $retries;
+    private ?float $commissionFee = null;
+
+    #[ORM\Column(enumType: CurrencyEnum::class)]
+    private ?CurrencyEnum $currency = null;
 
     public function __construct()
     {
         $this->created = new \DateTime();
-        $this->retries = 0;
         $this->status = TransactionStatusEnum::Processing;
     }
 
@@ -171,14 +176,26 @@ class Transaction implements TransactionInterface
         return $this;
     }
 
-    public function getRetries(): int
+    public function getCommissionFee(): ?float
     {
-        return $this->retries;
+        return $this->commissionFee;
     }
 
-    public function setRetries(int $retries): static
+    public function setCommissionFee(float $commissionFee): static
     {
-        $this->retries = $retries;
+        $this->commissionFee = $commissionFee;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?CurrencyEnum
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(CurrencyEnum $currency): static
+    {
+        $this->currency = $currency;
 
         return $this;
     }

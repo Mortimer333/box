@@ -8,6 +8,9 @@ use App\Application\Port\Secondary\DatabaseManagerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @codeCoverageIgnore Removing him from tests as this is basically proxy class.
+ */
 final readonly class DatabaseManager implements DatabaseManagerInterface
 {
     public function __construct(

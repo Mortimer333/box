@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class NotEnoughCreditException extends \DomainException
 {
     public function __construct(

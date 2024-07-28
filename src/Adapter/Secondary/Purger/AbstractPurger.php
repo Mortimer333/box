@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Purger;
+namespace App\Adapter\Secondary\Purger;
 
 use Doctrine\Common\DataFixtures\Purger\ORMPurgerInterface;
 use Doctrine\DBAL\Connection;
@@ -10,6 +10,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class AbstractPurger implements ORMPurgerInterface
 {
     public const SKIP = [];

@@ -15,6 +15,9 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[SWG\Tag('Test Helper')]
 #[Route('/_/api/tester/', name: 'api_tester_')]
 final class TestHelperController extends AbstractController

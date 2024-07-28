@@ -9,7 +9,7 @@ use Codeception\Test\Unit;
 
 class BaseUnitAbstract extends Unit
 {
-    protected UnitTester $tester;
+    public UnitTester $tester;
 
     public function _before(): void
     {

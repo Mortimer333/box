@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Application\Infrastructure\Service;
 
 use App\Application\Infrastructure\Exception\TransactionNotFoundException;
+use App\Application\Infrastructure\Message\TransferCommissionFeeFoundsMessage;
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\BankAccountRepositoryInterface;
 use App\Application\Port\Secondary\DatabaseManagerInterface;
+use App\Application\Port\Secondary\ExternalBankClientInterface;
+use App\Application\Port\Secondary\MessageBusInterface;
 use App\Application\Port\Secondary\RetrieveTransactionRepositoryInterface;
 use App\Application\Port\Secondary\TransactionHandlerInterface;
 use App\Domain\ExternalTransfer;
@@ -23,6 +26,8 @@ final readonly class ExternalTransactionHandler implements TransactionHandlerInt
         protected RetrieveTransactionRepositoryInterface $retrieveTransactionRepository,
         protected BankAccountRepositoryInterface $bankAccountRepository,
         protected DatabaseManagerInterface $databaseManager,
+        protected MessageBusInterface $messageBus,
+        protected ExternalBankClientInterface $externalBankClient,
     ) {
     }
 
@@ -37,7 +42,7 @@ final readonly class ExternalTransactionHandler implements TransactionHandlerInt
 
         /** @var BankAccountInterface $sender */
         $sender = $this->bankAccountRepository->lockOptimistic(
-            (int) $sender->getId(),
+            (int) $transaction->getSender()?->getId(),
             $transaction->getSender()?->getVersion(),
         );
 
@@ -45,24 +50,27 @@ final readonly class ExternalTransactionHandler implements TransactionHandlerInt
             new ExternalTransferSender(
                 (string) $sender->getAccountNumber(),
                 (float) $sender->getCredit(),
+                (float) $sender->getReserved(),
             ),
             (float) $transaction->getAmount(),
+            (float) $transaction->getCommissionFee(),
         );
 
-        // Some long process which allows us to easily test race condition handling, and gives window for data to change
-        // in DB
-        usleep(100);
+        $this->externalBankClient->transfer($transfer);
 
         $credit = (float) $sender->getCredit();
         $reserved = (float) $sender->getReserved();
 
-        $transfer->finishFoundsTransfer($credit, $reserved);
+        $feeCredit = 0;
+        $transfer->finishFoundsTransfer($credit, $reserved, $feeCredit);
 
         $sender->setCredit($credit);
         $sender->setReserved($reserved);
 
         $transaction->setStatus(TransactionStatusEnum::Finished);
 
+        // It's very important to not change order of execution - first persist change, then message about new founds
         $this->databaseManager->persist();
+        $this->messageBus->dispatch(new TransferCommissionFeeFoundsMessage($feeCredit));
     }
 }
