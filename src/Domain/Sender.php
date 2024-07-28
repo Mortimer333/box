@@ -9,6 +9,7 @@ final readonly class Sender
     public function __construct(
         public string $bankAccountNumber,
         public float $bankAccountCredit,
+        public int $transactionsDoneToday,
     ) {
     }
 }

@@ -1,25 +1,40 @@
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
+            - '../src/Adapter/Secondary/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-#    App\Purger\TestPurgerFactory:
-#        tags:
-#            - { name: 'doctrine.fixtures.purger_factory', alias: 'test_purger' }
+    ###> Transaction Chain Configuration ###
+    App\Application\Infrastructure\COR\TransferChain\BankToBankTransaction:
+        arguments:
+            $next: '@App\Application\Infrastructure\COR\TransferChain\FinishChain'
+
+    App\Application\Infrastructure\COR\TransferChain\InternalTransfer:
+        arguments:
+            $next: '@App\Application\Infrastructure\COR\TransferChain\FinishChain'
+
+    App\Application\Infrastructure\COR\TransferChain\DeterminateTransferType:
+        arguments:
+            $internalTransfer: '@App\Application\Infrastructure\COR\TransferChain\InternalTransfer'
+            $bankToBankTransaction: '@App\Application\Infrastructure\COR\TransferChain\BankToBankTransaction'
+
+    App\Application\Infrastructure\COR\TransferChain\RaiseAndValidateTransferAmount:
+        arguments:
+            $next: '@App\Application\Infrastructure\COR\TransferChain\DeterminateTransferType'
+
+    App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitValidation:
+        arguments:
+            $next: '@App\Application\Infrastructure\COR\TransferChain\RaiseAndValidateTransferAmount'
+
+    App\Application\Infrastructure\COR\TransferChain\TransferChainRootLink:
+        arguments:
+            $next: '@App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitValidation'
+
+    App\Application\Port\Secondary\TransactionChainLinkInterface:
+        alias: App\Application\Infrastructure\COR\TransferChain\TransferChainRootLink
+    ###< Transaction Chain Configuration ###

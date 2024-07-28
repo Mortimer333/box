@@ -2,7 +2,7 @@
 
 namespace App\Adapter\Secondary\Entity;
 
-use App\Adapter\Secondary\Repository\TransactionRepository;
+use App\Adapter\Secondary\Repository\RetrieveTransactionRepository;
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\TransactionInterface;
 use App\Domain\TransactionStatusEnum;
@@ -10,7 +10,7 @@ use App\Domain\TransactionTypeEnum;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Entity(repositoryClass: RetrieveTransactionRepository::class)]
 class Transaction implements TransactionInterface
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

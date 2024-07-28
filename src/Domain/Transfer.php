@@ -18,6 +18,13 @@ final class Transfer
     ) {
     }
 
+    public function getLimitOfDailyTransaction(): int
+    {
+        return $_ENV['MAX_DAILY_TRANSACTION_LIMIT']
+            ?? throw new ConfigurationException('Invalid configuration, missing maximum of daily transactions')
+        ;
+    }
+
     public function applyCommissionFee(): void
     {
         // Make this one time action
@@ -38,7 +45,7 @@ final class Transfer
         return $this->sender->bankAccountCredit >= $this->amount;
     }
 
-    public function doCurrencyMatch(CurrencyEnum $receiverCurrency): bool
+    public function doesCurrencyMatch(CurrencyEnum $receiverCurrency): bool
     {
         if ($receiverCurrency !== $this->currency) {
             return false;
@@ -47,15 +54,13 @@ final class Transfer
         return true;
     }
 
-    public function getLimitOfDailyTransaction(): int
-    {
-        return $_ENV['MAX_DAILY_TRANSACTION_LIMIT']
-            ?? throw new ConfigurationException('Invalid configuration, missing maximum of daily transactions')
-        ;
-    }
-
     public function getAmount(): float
     {
         return $this->amount;
+    }
+
+    public function hasClientReachedHisDailyLimit(): bool
+    {
+        return $this->getLimitOfDailyTransaction() <= $this->sender->transactionsDoneToday;
     }
 }

@@ -6,24 +6,25 @@ namespace App\Application\Infrastructure\COR\TransferChain;
 
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\BankAccountRepositoryInterface;
+use App\Application\Port\Secondary\TransactionChainLinkInterface;
 use App\Domain\Transfer;
 
-final readonly class DeterminateTransferType
+final readonly class DeterminateTransferType implements TransactionChainLinkInterface
 {
     public function __construct(
-        private InternalTransfer $internalTransfer,
+        private TransactionChainLinkInterface $internalTransfer,
+        protected TransactionChainLinkInterface $bankToBankTransaction,
         private BankAccountRepositoryInterface $bankAccountRepository,
-        private BankToBankTransaction $bankToBankTransaction,
     ) {
     }
 
-    public function process(Transfer $transfer, BankAccountInterface $sender): void
-    {
+    public function process(
+        Transfer $transfer,
+        BankAccountInterface $sender,
+    ): void {
         $receiverBankAccount = $this->bankAccountRepository->getByIdentifier($transfer->receiver->bankAccountNumber);
         if ($receiverBankAccount) {
-            /** @var BankAccountInterface $receiverBankAccount */
-            $receiverBankAccount = $this->bankAccountRepository->lockOptimistic((int) $receiverBankAccount->getId());
-            $this->internalTransfer->process($transfer, $sender, $receiverBankAccount);
+            $this->internalTransfer->process($transfer, $sender);
 
             return;
         }

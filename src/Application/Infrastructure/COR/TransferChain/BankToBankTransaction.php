@@ -7,31 +7,33 @@ namespace App\Application\Infrastructure\COR\TransferChain;
 use App\Application\Infrastructure\Message\ProcessTransactionMessage;
 use App\Application\Port\Secondary\BankAccountInterface;
 use App\Application\Port\Secondary\DatabaseManagerInterface;
-use App\Application\Port\Secondary\TransactionRepositoryInterface;
+use App\Application\Port\Secondary\MessageBusInterface;
+use App\Application\Port\Secondary\StoreTransactionRepositoryInterface;
+use App\Application\Port\Secondary\TransactionChainLinkInterface;
 use App\Domain\TransactionTypeEnum;
 use App\Domain\Transfer;
-use Symfony\Component\Messenger\MessageBusInterface;
 
-final readonly class BankToBankTransaction
+final readonly class BankToBankTransaction implements TransactionChainLinkInterface
 {
     public function __construct(
-        private TransactionRepositoryInterface $transactionRepository,
-        private FinishChain $finishChain,
-        // @TODO prepare a proxy interface for dispatcher and link it by symfony config
+        private TransactionChainLinkInterface $next,
+        protected StoreTransactionRepositoryInterface $storeTransactionRepositoryInterface,
         private MessageBusInterface $messageBus,
         private DatabaseManagerInterface $databaseManager,
     ) {
     }
 
-    public function process(Transfer $transfer, BankAccountInterface $sender): void
-    {
+    public function process(
+        Transfer $transfer,
+        BankAccountInterface $sender,
+    ): void {
         $transfer->type = TransactionTypeEnum::BankToBank;
         $sender->setReserved($sender->getReserved() + $transfer->getAmount());
-        $transaction = $this->transactionRepository->create($transfer, $sender);
+        $transaction = $this->storeTransactionRepositoryInterface->create($transfer, $sender);
         $this->databaseManager->persist();
 
         $this->messageBus->dispatch(new ProcessTransactionMessage((int) $transaction->getId()));
 
-        $this->finishChain->process($transfer);
+        $this->next->process($transfer, $sender);
     }
 }

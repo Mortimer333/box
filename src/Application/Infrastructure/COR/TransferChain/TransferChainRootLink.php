@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Infrastructure\COR\TransferChain;
 
 use App\Application\Port\Secondary\BankAccountInterface;
+use App\Application\Port\Secondary\TransactionChainLinkInterface;
 use App\Domain\Transfer;
 
 /**
@@ -14,15 +15,17 @@ use App\Domain\Transfer;
  * In simple terms:
  * Instead of changing initializations of the CoR across all related classes we just change class in the constructor.
  */
-class TransferChainRoot
+final readonly class TransferChainRootLink implements TransactionChainLinkInterface
 {
     public function __construct(
-        protected RaiseAndValidateTransferAmount $start,
+        protected TransactionChainLinkInterface $next,
     ) {
     }
 
-    public function process(Transfer $transfer, BankAccountInterface $sender): void
-    {
-        $this->start->process($transfer, $sender);
+    public function process(
+        Transfer $transfer,
+        BankAccountInterface $sender,
+    ): void {
+        $this->next->process($transfer, $sender);
     }
 }

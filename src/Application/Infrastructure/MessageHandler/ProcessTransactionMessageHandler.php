@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace App\Application\Infrastructure\MessageHandler;
 
 use App\Application\Infrastructure\Message\ProcessTransactionMessage;
-use App\Application\Infrastructure\Service\ExternalTransactionHandler;
+use App\Application\Port\Secondary\TransactionHandlerInterface;
 use Psr\Log\LoggerInterface;
 
 class ProcessTransactionMessageHandler
 {
     public function __construct(
         protected LoggerInterface $logger,
-        protected ExternalTransactionHandler $externalTransactionHandler,
+        protected TransactionHandlerInterface $transactionHandler,
     ) {
     }
 
     public function __invoke(ProcessTransactionMessage $message): void
     {
         try {
-            $this->externalTransactionHandler->handle($message->transactionId);
+            $this->transactionHandler->handle($message->transactionId);
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage(), [
                 'file' => $e->getFile(),

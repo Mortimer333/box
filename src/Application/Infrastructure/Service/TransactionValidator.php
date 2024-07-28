@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Application\Infrastructure\Service;
 
 use App\Application\Infrastructure\Exception\BankAccountNotFoundException;
-use App\Application\Port\Primary\TransactionValidatorInterface;
 use App\Application\Port\Secondary\BankAccountRepositoryInterface;
+use App\Application\Port\Secondary\TransactionValidatorInterface;
 use App\Application\Port\Secondary\UserInterface;
 
 class TransactionValidator implements TransactionValidatorInterface

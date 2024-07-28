@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Port\Primary;
-
-use App\Application\Port\Secondary\UserInterface;
+namespace App\Application\Port\Secondary;
 
 interface TransactionValidatorInterface
 {

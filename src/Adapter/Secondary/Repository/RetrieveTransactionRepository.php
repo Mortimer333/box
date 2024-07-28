@@ -5,8 +5,10 @@ namespace App\Adapter\Secondary\Repository;
 use App\Adapter\Secondary\Entity\Transaction;
 use App\Application\Infrastructure\Exception\TransactionNotFoundException;
 use App\Application\Port\Secondary\BankAccountInterface;
+use App\Application\Port\Secondary\RetrieveTransactionRepositoryInterface;
+use App\Application\Port\Secondary\StoreTransactionRepositoryInterface;
 use App\Application\Port\Secondary\TransactionInterface;
-use App\Application\Port\Secondary\TransactionRepositoryInterface;
+use App\Domain\TransactionStatusEnum;
 use App\Domain\Transfer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,7 +17,9 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @extends ServiceEntityRepository<Transaction>
  */
-class TransactionRepository extends ServiceEntityRepository implements TransactionRepositoryInterface
+class RetrieveTransactionRepository extends ServiceEntityRepository implements
+    RetrieveTransactionRepositoryInterface,
+    StoreTransactionRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -48,23 +52,19 @@ class TransactionRepository extends ServiceEntityRepository implements Transacti
         return $transaction;
     }
 
-    public function retrieveBetweenDate(\DateTime $from, \DateTime $to, int $limit = 10, int $offset = 0): array
+    public function retrieveSumBetweenDateWithoutFailures(\DateTime $from, \DateTime $to): int
     {
+        // @TODO Cache the result
         $qb = $this->createQueryBuilder('t');
         $qb
+            ->select('SUM(t.id) as sum')
             ->andWhere('t.created BETWEEN :from AND :to')
+            ->andWhere('t.status NOT IN (:statuses)')
             ->setParameter('from', $from)
             ->setParameter('to', $to)
+            ->setParameter('statuses', [TransactionStatusEnum::Failed])
         ;
 
-        if ($limit > 0) {
-            $qb->setMaxResults($limit);
-        }
-
-        if ($offset > -1) {
-            $qb->setFirstResult($offset);
-        }
-
-        return $qb->getQuery()->getArrayResult();
+        return $qb->getQuery()->getOneOrNullResult();
     }
 }
