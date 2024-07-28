@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Port\Secondary;
 
+use App\Domain\CurrencyEnum;
 use App\Domain\TransactionStatusEnum;
 use App\Domain\TransactionTypeEnum;
 
@@ -50,4 +51,8 @@ interface TransactionInterface
     public function getCommissionFee(): ?float;
 
     public function setCommissionFee(float $commissionFee): static;
+
+    public function getCurrency(): ?CurrencyEnum;
+
+    public function setCurrency(CurrencyEnum $currency): static;
 }

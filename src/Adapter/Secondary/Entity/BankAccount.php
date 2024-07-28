@@ -45,12 +45,13 @@ class BankAccount implements BankAccountInterface
     private ?string $accountNumber = null;
 
     #[ORM\Column(nullable: true)]
-    private ?float $reserved = null;
+    private ?float $reserved;
 
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
         $this->version = 1;
+        $this->reserved = 0.0;
     }
 
     public function getId(): ?int

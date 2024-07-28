@@ -55,20 +55,18 @@ class ExternalTransactionHandlerTest extends BaseUnitAbstract
         self::$sender = $this->makeEmpty(BankAccount::class, [
             'getCredit' => Expected::exactly(2, $senderCredit),
             'getReserved' => Expected::exactly(2, $senderReserved),
-            'setCredit' => Expected::once(function (mixed $credit) use ($senderCredit, $amount, $fee): BankAccountInterface
-            {
+            'setCredit' => Expected::once(function (mixed $credit) use ($senderCredit, $amount, $fee): BankAccountInterface {
                 $this->assertIsFloat($credit);
-                $this->assertEquals($senderCredit - ($amount + $amount*$fee), $credit);
+                $this->assertEquals($senderCredit - ($amount + $amount * $fee), $credit);
 
-                return self::$sender;
+                return self::$sender ?? $this->fail('Missing sender to return');
             }),
-            'setReserved' => Expected::once(function (mixed $reserved) use ($senderReserved, $amount, $fee): BankAccountInterface
-            {
+            'setReserved' => Expected::once(function (mixed $reserved) use ($senderReserved, $amount, $fee): BankAccountInterface {
                 $this->assertIsFloat($reserved);
-                $this->assertEquals($reserved, $senderReserved - ($amount + $amount*$fee));
+                $this->assertEquals($reserved, $senderReserved - ($amount + $amount * $fee));
 
-                return self::$sender;
-            })
+                return self::$sender ?? $this->fail('Missing sender to return');
+            }),
         ]);
         $bankAccountRepositoryMock = $this->makeEmpty(BankAccountRepositoryInterface::class, [
             'lockOptimistic' => self::$sender,

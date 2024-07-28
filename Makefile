@@ -36,15 +36,15 @@ cs-fix:
 	--verbose --config=.php-cs-fixer.dist.php
 
 phpstan:
-	@echo "Runing PHPStan"
+	@echo "Running PHPStan"
 	php -d memory_limit=4G vendor/bin/phpstan -v analyse src tests migrations
 
 psalm:
-	@echo "Runing Psalm"
+	@echo "Running Psalm"
 	php -d memory_limit=4G vendor/bin/psalm --taint-analysis
 
 phpmd:
-	@echo "Runing PHP Mess Detector"
+	@echo "Running PHP Mess Detector"
 	php -d memory_limit=4G vendor/bin/phpmd src text phpmd.xml
 
 analysis:
@@ -56,7 +56,7 @@ analysis:
 # Tests
 
 unit-test:
-	@echo "Runing Unit tests"
+	@echo "Running Unit tests"
 	@docker exec -ti ifxpayments-php-fpm php vendor/bin/codecept run Unit $(args)
 
 coverage-test:
@@ -65,7 +65,7 @@ coverage-test:
 
 test-all:
 	$(MAKE) reset-test-db
-	$(MAKE) unit-test
+	$(MAKE) coverage-test
 
 single-test:
 	@docker exec -ti ifxpayments-php-fpm bash ./dev/run_single_test.sh $(filter-out $@,$(MAKECMDGOALS))

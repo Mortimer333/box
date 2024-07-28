@@ -20,8 +20,7 @@ and add `ifxpayments.localhost` to you hosts file:
 # Environment
 We are using Symfony 7 + MySQL + Redis + RabbitMQ + Nginx + PHP 8.3
 
-
-### API
+### Swagger API
 To access REST API docs:
 `http://ifxpayments.localhost/api/doc` 
 > You will only see routes which name starts with `api_` and path with `/_`
@@ -58,5 +57,3 @@ make single-test FileNameCest
 # To run single test
 make single-test FileNameCest functionTest
 ```
-
-I'm focusing mainly on unit tests, so integration tests are pretty scarce.

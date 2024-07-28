@@ -30,4 +30,6 @@ interface BankAccountInterface
     public function setReserved(?float $reserved): static;
 
     public function getVersion(): int;
+
+    public function setVersion(int $version): static;
 }

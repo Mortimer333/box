@@ -20,9 +20,6 @@ final readonly class FinishChain implements TransactionChainLinkInterface
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'finish' . PHP_EOL);
-        fclose($file);
         $this->logger->info(
             sprintf(
                 'Transfer proces from %s to %s finished successfully',

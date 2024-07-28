@@ -364,8 +364,11 @@ class TransferChainTest extends BaseUnitAbstract
         $this->tester->assertEquals($class, $e->getTrace()[0]['class'] ?? 'N/A');
     }
 
-    protected function startChain(Transfer $transfer, BankAccountInterface $account): void
+    protected function startChain(Transfer $transfer, ?BankAccountInterface $account): void
     {
+        if (!$account) {
+            $this->fail('Invalid sender passed to start of chain');
+        }
         $this->tester->getService(TransactionChainLinkInterface::class)->process($transfer, $account);
     }
 
@@ -386,6 +389,9 @@ class TransferChainTest extends BaseUnitAbstract
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function setBankRepositoryMock(array $parameters): void
     {
         BankAccountRepository::$mock = $this->makeEmpty(BankAccountRepositoryInterface::class, $parameters);

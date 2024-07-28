@@ -28,9 +28,12 @@ final class BasicAuthAuthenticator extends AbstractAuthenticator
     ) {
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function supports(Request $request): bool
     {
-        return $request->headers->has('Authorization');
+        return true;
     }
 
     public function authenticate(Request $request): Passport

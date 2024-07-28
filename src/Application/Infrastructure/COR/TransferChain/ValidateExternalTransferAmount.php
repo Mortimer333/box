@@ -20,9 +20,6 @@ final readonly class ValidateExternalTransferAmount implements TransactionChainL
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'Validate extrernal ' . $transfer->amount . PHP_EOL);
-        fclose($file);
         $external = $transfer->convertToExternal();
         if (!$external->senderHasEnoughCredit()) {
             throw new NotEnoughCreditException($transfer->amount, $transfer->currency);

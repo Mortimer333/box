@@ -20,9 +20,6 @@ final readonly class ClientDailyTransferLimitExceeded implements TransactionChai
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'daily' . PHP_EOL);
-        fclose($file);
         if ($transfer->hasClientReachedHisDailyLimit()) {
             throw new DailyLimitExceededException($transfer->getDailyTransactionLimit());
         }

@@ -27,9 +27,6 @@ final readonly class BankToBankTransaction implements TransactionChainLinkInterf
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'bank to bank' . PHP_EOL);
-        fclose($file);
         $external = $transfer->convertToExternal();
         $sender->setReserved($sender->getReserved() + $external->amount);
         $transaction = $this->storeTransactionRepositoryInterface->create(

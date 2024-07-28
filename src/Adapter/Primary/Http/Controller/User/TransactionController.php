@@ -26,6 +26,7 @@ final class TransactionController extends AbstractController
     }
 
     #[Route('/create', name: 'create', methods: 'POST')]
+    // @TODO add possible responses
     public function create(#[MapRequestPayload] CreateTransactionDTO $createTransactionModel): JsonResponse
     {
         $user = $this->security->getUser();

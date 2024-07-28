@@ -19,13 +19,11 @@ final class UserRepository extends ServiceEntityRepository implements UserReposi
         parent::__construct($registry, User::class);
     }
 
+    /**
+     * @throws UserNotFoundException
+     */
     public function get(int $id): UserInterface
     {
-        $user = $this->find($id);
-        if (!$user) {
-            throw new UserNotFoundException($id);
-        }
-
-        return $user;
+        return $this->find($id) ?? throw new UserNotFoundException($id);
     }
 }

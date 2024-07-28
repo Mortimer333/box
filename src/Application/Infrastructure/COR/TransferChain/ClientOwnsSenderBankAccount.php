@@ -29,9 +29,6 @@ final readonly class ClientOwnsSenderBankAccount implements TransactionChainLink
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'owned' . PHP_EOL);
-        fclose($file);
         if (!$this->userOwnsSelectedBankAccount((int) $sender->getId(), $transfer->sender->userId)) {
             throw new AuthenticationException('Cannot move credit from not owned bank account', 401);
         }

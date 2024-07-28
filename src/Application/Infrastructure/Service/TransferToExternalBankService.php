@@ -16,5 +16,7 @@ final readonly class TransferToExternalBankService implements ExternalBankClient
     {
         // Some long process which allows us to transfer found to different bank and get verification that it happened
         // properly
+
+        // Here we would also use TransactionStatusEnum::Failure, if an external bank would not accept out transfer
     }
 }

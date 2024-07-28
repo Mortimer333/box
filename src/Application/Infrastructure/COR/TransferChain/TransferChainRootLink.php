@@ -26,9 +26,6 @@ final readonly class TransferChainRootLink implements TransactionChainLinkInterf
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'w');
-        fwrite($file, 'Start' . PHP_EOL);
-        fclose($file);
         $this->next->process($transfer, $sender);
     }
 }

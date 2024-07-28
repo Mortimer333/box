@@ -22,9 +22,6 @@ final readonly class DeterminateTransferType implements TransactionChainLinkInte
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'determinate' . PHP_EOL);
-        fclose($file);
         $receiverBankAccount = $this->bankAccountRepository->getByIdentifier($transfer->receiver->bankAccountNumber);
         if ($receiverBankAccount) {
             $this->internalTransfer->process($transfer, $sender);

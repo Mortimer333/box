@@ -35,7 +35,7 @@ class TransactionServiceTest extends BaseUnitAbstract
 
         $_ENV['MAX_PROCESS_RETRY_COUNT'] = null;
         $this->expectException(ConfigurationException::class);
-        $transactionService->process(0,0,'','','',0.0);
+        $transactionService->process(0, 0, '', '', '', 0.0);
     }
 
     public function testTransactionRetryStrategy(): void

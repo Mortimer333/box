@@ -31,6 +31,9 @@ final class TransactionRepository extends ServiceEntityRepository implements
         parent::__construct($registry, Transaction::class);
     }
 
+    /**
+     * @throws TransactionNotFoundException
+     */
     public function get(int $id): TransactionInterface
     {
         return $this->find($id) ?? throw new TransactionNotFoundException($id);
@@ -56,6 +59,7 @@ final class TransactionRepository extends ServiceEntityRepository implements
             ->setAddress($address)
             ->setTitle($title)
             ->setReceiver($receiver)
+            ->setCommissionFee($commissionFee)
             ->setReceiverAccountNumber($receiverAccountNumber)
             ->setSender($sender)
         ;
@@ -76,21 +80,20 @@ final class TransactionRepository extends ServiceEntityRepository implements
 
         $qb = $this->createQueryBuilder('t');
         $qb
-            ->select('SUM(t.id) as sum')
+            ->select('COUNT(t) as sum')
             ->andWhere('t.created BETWEEN :from AND :to')
             ->andWhere('t.status NOT IN (:statuses)')
-            ->andWhere('t.id = :id')
+            ->andWhere('t.sender = :id')
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->setParameter('statuses', [TransactionStatusEnum::Failed])
             ->setParameter('id', $bankAccountId)
         ;
 
-        $sum = (int) $qb->getQuery()->getOneOrNullResult();
-
+        $sum = $qb->getQuery()->getSingleScalarResult();
         $item->set($sum);
         $this->cacheItemPool->save($item);
 
-        return $sum;
+        return (int) $sum;
     }
 }

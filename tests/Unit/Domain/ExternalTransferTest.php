@@ -13,7 +13,6 @@ use Codeception\Attribute\Examples;
  */
 class ExternalTransferTest extends BaseUnitAbstract
 {
-
     public function testCommissionFeeExceptionIsThrownWithFaultConfig(): void
     {
         $_ENV['EXTERNAL_COMMISSION_FEE'] = null;

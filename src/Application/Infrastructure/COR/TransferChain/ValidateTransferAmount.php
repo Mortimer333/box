@@ -20,9 +20,6 @@ final readonly class ValidateTransferAmount implements TransactionChainLinkInter
         Transfer $transfer,
         BankAccountInterface $sender,
     ): void {
-        $file = fopen('/app/var/test', 'a');
-        fwrite($file, 'Raise ' . $transfer->amount . PHP_EOL);
-        fclose($file);
         if (!$transfer->senderHasEnoughCredit()) {
             throw new NotEnoughCreditException($transfer->amount, $transfer->currency);
         }
