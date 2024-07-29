@@ -44,4 +44,9 @@ class DatabaseManager implements DatabaseManagerInterface
     {
         $this->getManager()->reconnectIfNecessary();
     }
+
+    public function clear(): void
+    {
+        $this->getManager()->clear();
+    }
 }

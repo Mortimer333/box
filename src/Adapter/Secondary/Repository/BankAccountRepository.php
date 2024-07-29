@@ -40,7 +40,9 @@ final class BankAccountRepository extends ServiceEntityRepository implements Ban
     public function lockOptimistic(int $id, ?int $version = null): ?BankAccountInterface
     {
         if (is_null($version)) {
-            $version = $this->get($id)->getVersion();
+            $account = $this->get($id);
+            $this->_em->refresh($account);
+            $version = $account->getVersion();
         }
 
         return $this->find($id, LockMode::OPTIMISTIC, $version);

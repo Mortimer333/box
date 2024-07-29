@@ -7,7 +7,7 @@ namespace App\Domain;
 /**
  * @codeCoverageIgnore
  */
-final class CurrencyMismatchException extends \DomainException
+final class CurrencyMismatchException extends ValidationException
 {
     public function __construct(
         CurrencyEnum $sender,

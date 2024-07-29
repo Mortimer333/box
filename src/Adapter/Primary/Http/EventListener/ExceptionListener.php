@@ -30,7 +30,6 @@ final class ExceptionListener implements EventSubscriberInterface
     {
         $exception = $event->getThrowable();
         $status = $this->getStatusCode($exception);
-
         $event->setResponse(new JsonResponse(
             [
                 'message' => $exception->getMessage(),

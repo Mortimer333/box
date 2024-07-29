@@ -15,4 +15,6 @@ interface DatabaseManagerInterface
     public function beginTransaction(): void;
 
     public function reconnectIfNecessary(): void;
+
+    public function clear(): void;
 }

@@ -28,13 +28,13 @@ final readonly class BankToBankTransaction implements TransactionChainLinkInterf
         BankAccountInterface $sender,
     ): void {
         $external = $transfer->convertToExternal();
-        $sender->setReserved($sender->getReserved() + $external->amount);
+        $sender->setReserved($sender->getReserved() + $external->amount + $external->getCommissionFeeAmount());
         $transaction = $this->storeTransactionRepositoryInterface->create(
             $sender,
             TransactionTypeEnum::BankToBank,
             $transfer->currency,
             $external->amount,
-            $external->getCommissionFeeAmount(),
+            $external->getCommissionFee(),
             $transfer->title,
             $transfer->receiver->name,
             $transfer->receiver->bankAccountNumber,

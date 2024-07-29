@@ -1,0 +1,14 @@
+actor: E2ETester
+modules:
+    enabled:
+        - Asserts
+        - Symfony:
+            app_path: 'src'
+            environment: 'test'
+        - Doctrine:
+            depends: Symfony
+            cleanup: true
+        - DataFactory:
+            depends: Doctrine
+        - \App\Tests\Support\Helper\E2E
+        - \App\Tests\Support\Helper\Shared

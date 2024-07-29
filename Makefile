@@ -59,9 +59,13 @@ unit-test:
 	@echo "Running Unit tests"
 	@docker exec -ti ifxpayments-php-fpm php vendor/bin/codecept run Unit $(args)
 
+e2e-test:
+	@echo "Running Unit tests"
+	@docker exec -ti ifxpayments-php-fpm php vendor/bin/codecept run E2E $(args)
+
 coverage-test:
 	@echo "Run all tests and get html coverage"
-	@docker exec -ti ifxpayments-php-fpm bash -c 'XDEBUG_MODE=coverage php vendor/bin/codecept run --coverage-html'
+	@docker exec -ti ifxpayments-php-fpm bash -c 'XDEBUG_MODE=coverage php vendor/bin/codecept run Unit,E2E --coverage-html'
 
 test-all:
 	$(MAKE) reset-test-db
@@ -109,3 +113,5 @@ shell-mysql:
 reset-test-db:
 	@echo "Resetting test DB"
 	@docker exec -ti ifxpayments-php-fpm bash -c 'APP_ENV=test php bin/console doctrine:fixtures:load --no-interaction --group=test  --purger=test_purger'
+	@echo "Reset cache"
+	@docker exec -ti ifxpayments-redis redis-cli FLUSHALL

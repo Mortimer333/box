@@ -7,7 +7,7 @@ namespace App\Domain;
 /**
  * @codeCoverageIgnore
  */
-final class DailyLimitExceededException extends \DomainException
+final class DailyLimitExceededException extends ValidationException
 {
     public function __construct(
         int $dailyLimit,

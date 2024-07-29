@@ -13,17 +13,22 @@ final class ExternalTransfer
     ) {
     }
 
+    public function getCommissionFee(): float
+    {
+        if (!isset($_ENV['EXTERNAL_COMMISSION_FEE'])) {
+            throw new ConfigurationException('Invalid configuration, missing external commission fee value');
+        }
+
+        return (float) $_ENV['EXTERNAL_COMMISSION_FEE'];
+    }
+
     public function getCommissionFeeAmount(): float
     {
         if (!is_null($this->commissionFee)) {
             return $this->amount * $this->commissionFee;
         }
 
-        if (!isset($_ENV['EXTERNAL_COMMISSION_FEE'])) {
-            throw new ConfigurationException('Invalid configuration, missing external commission fee value');
-        }
-
-        return $this->amount * $_ENV['EXTERNAL_COMMISSION_FEE'];
+        return $this->amount * $this->getCommissionFee();
     }
 
     public function senderHasEnoughCredit(): bool

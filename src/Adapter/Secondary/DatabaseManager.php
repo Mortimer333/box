@@ -39,6 +39,11 @@ final readonly class DatabaseManager implements DatabaseManagerInterface
         $this->em->beginTransaction();
     }
 
+    public function clear(): void
+    {
+        $this->em->clear();
+    }
+
     public function reconnectIfNecessary(): void
     {
         if (!$this->em->isOpen()) {

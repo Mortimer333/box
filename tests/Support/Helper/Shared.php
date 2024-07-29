@@ -16,6 +16,8 @@ use App\Domain\TransactionTypeEnum;
 use App\Domain\Transfer;
 use Faker\Factory;
 use Faker\Provider\Base as FakerBase;
+use Zenstruck\Messenger\Test\Transport\TestTransport;
+use Zenstruck\Messenger\Test\Transport\TestTransportRegistry;
 
 class Shared extends \Codeception\Module
 {
@@ -109,7 +111,14 @@ class Shared extends \Codeception\Module
             $title,
             $currency,
             $amount,
-            $type,
         );
+    }
+
+    public function getMessenger(?string $transport = null): TestTransport
+    {
+        /** @var TestTransportRegistry $registry */
+        $registry = $this->getService('zenstruck_messenger_test.transport_registry');
+
+        return $registry->get($transport);
     }
 }

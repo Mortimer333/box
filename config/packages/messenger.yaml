@@ -23,3 +23,9 @@ framework:
         routing:
             App\Application\Infrastructure\Message\ProcessTransactionMessage: process_transaction
             App\Application\Infrastructure\Message\TransferCommissionFeeFoundsMessage: process_transaction
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                process_transaction: test://

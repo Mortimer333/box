@@ -51,6 +51,12 @@ services:
         alias: App\Application\Infrastructure\COR\TransferChain\TransferChainRootLink
     ###< Transaction Chain Configuration ###
 
+    App\Application\Infrastructure\MessageHandler\ProcessTransactionMessageHandler:
+        tags: [ messenger.message_handler ]
+
+    App\Application\Infrastructure\MessageHandler\TransferCommissionFeeFoundsMessageHandler:
+        tags: [ messenger.message_handler ]
+
 when@test:
     services:
         App\Tests\Support\Override\DatabaseManager:

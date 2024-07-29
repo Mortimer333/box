@@ -7,7 +7,7 @@ namespace App\Domain;
 /**
  * @codeCoverageIgnore
  */
-final class NotEnoughCreditException extends \DomainException
+final class NotEnoughCreditException extends ValidationException
 {
     public function __construct(
         float $amount,

@@ -15,6 +15,7 @@ use App\Domain\CurrencyEnum;
 use App\Domain\Receiver;
 use App\Domain\Sender;
 use App\Domain\Transfer;
+use App\Domain\ValidationException;
 
 final readonly class TransactionService implements TransactionServiceInterface
 {
@@ -69,8 +70,12 @@ final readonly class TransactionService implements TransactionServiceInterface
                 );
 
                 $this->transferChainRoot->process($transaction, $senderAccount);
+                break;
+            } catch (ValidationException $e) {
+                throw $e;
             } catch (\Throwable $e) {
                 $this->databaseManager->rollback();
+                $this->databaseManager->clear();
 
                 if ($maxTry <= $currentTry + 1) {
                     throw $e;
