@@ -1,4 +1,4 @@
-# ifxpayments
+# box
 
 Mock App for payments
 
@@ -12,9 +12,9 @@ then to set up database:
 ```shell
 php bin/console d:m:m
 ```
-and add `ifxpayments.localhost` to you hosts file:
+and add `box.localhost` to you hosts file:
 ```shell
-127.0.0.1    ifxpayments.localhost
+127.0.0.1    box.localhost
 ```
 
 # Environment
@@ -22,19 +22,19 @@ We are using Symfony 7 + MySQL + Redis + RabbitMQ + Nginx + PHP 8.3
 
 ### Swagger API
 To access REST API docs:
-`http://ifxpayments.localhost/api/doc` 
+`http://box.localhost/api/doc` 
 > You will only see routes which name starts with `api_` and path with `/_`
 
 
 ### RabbitMQ
-http://ifxpayments.localhost:15672
+http://box.localhost:15672
 
 user: guest
 
 pass: guest
 
 ### Supervisor
-http://ifxpayments.localhost:9001/
+http://box.localhost:9001/
 
 user: admin
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Adapter\Secondary\Repository;
 
-use App\Application\Infrastructure\Exception\UserNotFoundException;
+use App\Application\Exception\UserNotFoundException;
 use App\Application\Port\Secondary\UserInterface;
 use App\Application\Port\Secondary\UserRepositoryInterface;
 use App\Tests\Unit\BaseUnitAbstract;
@@ -21,7 +21,7 @@ class UserRepositoryTest extends BaseUnitAbstract
         $this->assertInstanceOf(UserInterface::class, $user);
     }
 
-    public function testExceptionIsThrownWhenRetrievingNonExistingTransaction(): void
+    public function testExceptionIsThrownWhenRetrievingNonExistingUser(): void
     {
         $repository = $this->tester->getService(UserRepositoryInterface::class);
         $this->expectException(UserNotFoundException::class);

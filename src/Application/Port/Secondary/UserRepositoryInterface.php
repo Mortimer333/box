@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Port\Secondary;
 
-use App\Application\Infrastructure\Exception\UserNotFoundException;
+use App\Application\Exception\UserNotFoundException;
 
 interface UserRepositoryInterface
 {

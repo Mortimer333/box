@@ -3,7 +3,7 @@
 namespace App\Adapter\Secondary\Repository;
 
 use App\Adapter\Secondary\Entity\User;
-use App\Application\Infrastructure\Exception\UserNotFoundException;
+use App\Application\Exception\UserNotFoundException;
 use App\Application\Port\Secondary\UserInterface;
 use App\Application\Port\Secondary\UserRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;

@@ -4,8 +4,6 @@ namespace App\Adapter\Secondary\Entity;
 
 use App\Adapter\Secondary\Repository\UserRepository;
 use App\Application\Port\Secondary\UserInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface as FrameworkUserInterface;
@@ -36,17 +34,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Framewo
     /** @var array<string> $roles */
     #[ORM\Column]
     private array $roles = [];
-
-    /**
-     * @var Collection<int, BankAccount>
-     */
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: BankAccount::class, orphanRemoval: true)]
-    private Collection $bankAccounts;
-
-    public function __construct()
-    {
-        $this->bankAccounts = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -134,36 +121,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Framewo
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, BankAccount>
-     */
-    public function getBankAccounts(): Collection
-    {
-        return $this->bankAccounts;
-    }
-
-    public function addBankAccount(BankAccount $bankAccount): static
-    {
-        if (!$this->bankAccounts->contains($bankAccount)) {
-            $this->bankAccounts->add($bankAccount);
-            $bankAccount->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBankAccount(BankAccount $bankAccount): static
-    {
-        if ($this->bankAccounts->removeElement($bankAccount)) {
-            // set the owning side to null (unless already changed)
-            if ($bankAccount->getOwner() === $this) {
-                $bankAccount->setOwner(null);
-            }
-        }
 
         return $this;
     }

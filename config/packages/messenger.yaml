@@ -6,13 +6,13 @@ framework:
             symfony_serializer:
                 format: json
         transports:
-            process_transaction:
+            bus:
                 dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
                 retry_strategy:
                     max_retries: 2
                 options:
                     exchange:
-                        name: 'x.prc_trans'
+                        name: 'x.bus'
                         type: 'topic'
                     queues:
                         q.gen_ntf: &quorum-queue-args
@@ -21,11 +21,9 @@ framework:
                     delay:
                         exchange_name: 'x.delays-internal'
         routing:
-            App\Application\Infrastructure\Message\ProcessTransactionMessage: process_transaction
-            App\Application\Infrastructure\Message\TransferCommissionFeeFoundsMessage: process_transaction
 
 when@test:
     framework:
         messenger:
             transports:
-                process_transaction: test://
+                bus: test://

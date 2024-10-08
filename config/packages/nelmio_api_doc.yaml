@@ -6,7 +6,7 @@ nelmio_api_doc:
             - ^api\_
     documentation:
         info:
-            title: IFXpayments
+            title: box
             description:
             version: 1.0.0
         security:

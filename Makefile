@@ -57,22 +57,22 @@ analysis:
 
 unit-test:
 	@echo "Running Unit tests"
-	@docker exec -ti ifxpayments-php-fpm php vendor/bin/codecept run Unit $(args)
+	@docker exec -ti box-php-fpm php vendor/bin/codecept run Unit $(args)
 
 e2e-test:
 	@echo "Running Unit tests"
-	@docker exec -ti ifxpayments-php-fpm php vendor/bin/codecept run E2E $(args)
+	@docker exec -ti box-php-fpm php vendor/bin/codecept run E2E $(args)
 
 coverage-test:
 	@echo "Run all tests and get html coverage"
-	@docker exec -ti ifxpayments-php-fpm bash -c 'XDEBUG_MODE=coverage php vendor/bin/codecept run Unit,E2E --coverage-html'
+	@docker exec -ti box-php-fpm bash -c 'XDEBUG_MODE=coverage php vendor/bin/codecept run Unit,E2E --coverage-html'
 
 test-all:
 	$(MAKE) reset-test-db
 	$(MAKE) coverage-test
 
 single-test:
-	@docker exec -ti ifxpayments-php-fpm bash ./dev/run_single_test.sh $(filter-out $@,$(MAKECMDGOALS))
+	@docker exec -ti box-php-fpm bash ./dev/run_single_test.sh $(filter-out $@,$(MAKECMDGOALS))
 
 before-push:
 	$(MAKE) cs-fix
@@ -81,8 +81,8 @@ before-push:
 
 migrate:
 	@echo "Running Migrate for current and test environment"
-	@docker exec -ti ifxpayments-php-fpm php bin/console doctrine:migration:migrate --no-interaction --allow-no-migration
-	@docker exec -ti ifxpayments-php-fpm bash -c 'APP_ENV=test php bin/console doctrine:migration:migrate --no-interaction --allow-no-migration'
+	@docker exec -ti box-php-fpm php bin/console doctrine:migration:migrate --no-interaction --allow-no-migration
+	@docker exec -ti box-php-fpm bash -c 'APP_ENV=test php bin/console doctrine:migration:migrate --no-interaction --allow-no-migration'
 
 migrate-down:
 	php bin/console doctrine:migrations:execute --down DoctrineMigrations\\Version$(filter-out $@,$(MAKECMDGOALS))
@@ -96,7 +96,7 @@ tests-build:
 	php vendor/bin/codecept build
 
 entity:
-	@docker exec -ti ifxpayments-php-fpm php bin/console make:entity \\App\\Adapter\\Secondary\\Entity\\$(filter-out $@,$(MAKECMDGOALS))
+	@docker exec -ti box-php-fpm php bin/console make:entity \\App\\Adapter\\Secondary\\Entity\\$(filter-out $@,$(MAKECMDGOALS))
 
 stop:
 	@docker stop $(shell docker ps -aq)
@@ -105,13 +105,13 @@ start:
 	@docker compose up -d
 
 shell-php:
-	@docker exec -ti ifxpayments-php-fpm bash
+	@docker exec -ti box-php-fpm bash
 
 shell-mysql:
-	@docker exec -ti ifxpayments-db bash
+	@docker exec -ti box-db bash
 
 reset-test-db:
 	@echo "Resetting test DB"
-	@docker exec -ti ifxpayments-php-fpm bash -c 'APP_ENV=test php bin/console doctrine:fixtures:load --no-interaction --group=test  --purger=test_purger'
+	@docker exec -ti box-php-fpm bash -c 'APP_ENV=test php bin/console doctrine:fixtures:load --no-interaction --group=test  --purger=test_purger'
 	@echo "Reset cache"
-	@docker exec -ti ifxpayments-redis redis-cli FLUSHALL
+	@docker exec -ti box-redis redis-cli FLUSHALL

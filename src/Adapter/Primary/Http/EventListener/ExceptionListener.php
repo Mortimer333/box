@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Adapter\Primary\Http\EventListener;
 
-use App\Application\Infrastructure\Exception\AuthenticationException;
+use App\Application\Exception\AuthenticationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

@@ -13,58 +13,10 @@ services:
         tags:
             - { name: 'doctrine.fixtures.purger_factory', alias: 'test_purger' }
 
-    ###> Transaction Chain Configuration ###
-    App\Application\Infrastructure\COR\TransferChain\BankToBankTransaction:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\FinishChain'
-
-    App\Application\Infrastructure\COR\TransferChain\InternalTransfer:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\FinishChain'
-
-    App\Application\Infrastructure\COR\TransferChain\ValidateTransferAmount:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\InternalTransfer'
-
-    App\Application\Infrastructure\COR\TransferChain\ValidateExternalTransferAmount:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\BankToBankTransaction'
-
-    App\Application\Infrastructure\COR\TransferChain\DeterminateTransferType:
-        arguments:
-            $internalTransfer: '@App\Application\Infrastructure\COR\TransferChain\ValidateTransferAmount'
-            $bankToBankTransaction: '@App\Application\Infrastructure\COR\TransferChain\ValidateExternalTransferAmount'
-
-    App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitExceeded:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\DeterminateTransferType'
-
-    App\Application\Infrastructure\COR\TransferChain\ClientOwnsSenderBankAccount:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\ClientDailyTransferLimitExceeded'
-
-    App\Application\Infrastructure\COR\TransferChain\TransferChainRootLink:
-        arguments:
-            $next: '@App\Application\Infrastructure\COR\TransferChain\ClientOwnsSenderBankAccount'
-
-    App\Application\Port\Secondary\TransactionChainLinkInterface:
-        alias: App\Application\Infrastructure\COR\TransferChain\TransferChainRootLink
-    ###< Transaction Chain Configuration ###
-
-    App\Application\Infrastructure\MessageHandler\ProcessTransactionMessageHandler:
-        tags: [ messenger.message_handler ]
-
-    App\Application\Infrastructure\MessageHandler\TransferCommissionFeeFoundsMessageHandler:
-        tags: [ messenger.message_handler ]
-
 when@test:
     services:
         App\Tests\Support\Override\DatabaseManager:
             decorates: App\Adapter\Secondary\DatabaseManager
-            arguments: ['@.inner']
-
-        App\Tests\Support\Override\BankAccountRepository:
-            decorates: App\Adapter\Secondary\Repository\BankAccountRepository
             arguments: ['@.inner']
 
         App\Tests\Support\Override\MessageBus:
