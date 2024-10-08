@@ -4,12 +4,6 @@ controllers:
         namespace: App\Adapter\Primary\Http\Controller
     type: attribute
     prefix: '/'
-user:
-    resource:
-        path: ../src/Adapter/Primary/Http/Controller/User
-        namespace: App\Adapter\Primary\Http\Controller\User
-    type: attribute
-    prefix: '/_/user'
 app.swagger_ui:
     path: /api/doc
     methods: GET
