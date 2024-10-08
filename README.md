@@ -41,7 +41,7 @@ user: admin
 pass: admin
 
 # Architecture
-For this project I've used DDD with Ports & Adapters to make this framework-agnostic application (as specified in a task).
+For this project I've used DDD with Ports & Adapters to make this framework-agnostic application.
 
 # Tests
 For tests, I'm using [Codeception](https://codeception.com/docs/Introduction) library.
