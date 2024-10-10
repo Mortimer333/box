@@ -99,6 +99,9 @@ entity:
 	@docker exec -ti box-php-fpm php bin/console make:entity \\App\\Adapter\\Secondary\\Entity\\$(filter-out $@,$(MAKECMDGOALS))
 
 stop:
+	@docker compose down
+
+remove:
 	@docker stop $(shell docker ps -aq)
 
 start:

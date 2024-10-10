@@ -9,5 +9,10 @@ modules:
         - Symfony:
             app_path: 'src'
             environment: 'test'
+        - Doctrine:
+              depends: Symfony
+              cleanup: true
+        - DataFactory:
+              depends: Doctrine
         - \App\Tests\Support\Helper\Unit
         - \App\Tests\Support\Helper\Shared
